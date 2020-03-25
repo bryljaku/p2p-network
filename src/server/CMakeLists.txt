@@ -1,5 +1,8 @@
+project(server)
 set(SOURCE_FILES main.cpp)
 
-add_executable(p2p-server ${SOURCE_FILES})
+add_executable(server ${SOURCE_FILES})
 
-target_link_libraries(p2p-server spdlog)
+add_subdirectory(database)
+
+target_link_libraries(server spdlog server_database)
