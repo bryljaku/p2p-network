@@ -10,8 +10,5 @@ set_target_properties(spdlog PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/li
 include_directories(lib/spdlog/include)
 
 #### SOURCES
-set(SOURCE_FILES src/main.cpp)
-
-add_executable(p2p-network ${SOURCE_FILES})
-
-target_link_libraries(p2p-network spdlog)
+add_subdirectory(src/client)
+add_subdirectory(src/server)

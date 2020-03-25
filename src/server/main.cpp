@@ -10,7 +10,7 @@ void syslog_example()
     syslog_logger->warn("This is warning that will end up in syslog.");
 }
 int main() {
-    spdlog::warn("test");
+    spdlog::warn("server");
     syslog_example();
     return 0;
 }
