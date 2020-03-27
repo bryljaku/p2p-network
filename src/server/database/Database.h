@@ -11,7 +11,8 @@ class Database {
 public:
     std::vector<std::string> getIpAddressesForFilename(const std::string& filename);
     
-    bool addClient(std::string ip, std::vector<std::string> files);
+    void addClient(ClientInfo clientInfo);
+    void deleteClient();
 };
 
 

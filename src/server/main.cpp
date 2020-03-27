@@ -16,9 +16,8 @@ int main() {
     db->addClient("192.192.192.3", files);
     auto addresses = db->getIpAddressesForFilename("file2");
     std::string msg;
-    for(auto &i: addresses){
+    for(auto &i: addresses)
         msg += " " + i;
-    }
     spdlog::info("addresses {}", msg);
     return 0;
 }

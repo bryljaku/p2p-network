@@ -6,12 +6,15 @@ std::vector<std::string> Database::getIpAddressesForFilename(const std::string& 
     std::vector<std::string> ipAddresses = std::vector<std::string>();
     for(auto &i : clients) {
         if(i.checkIfHasFile(filename))
-            ipAddresses.push_back(i.getIpAddress());
+            ipAddresses.push_back(i.getIpV4Address());
     }
     return ipAddresses;
 }
 
-bool Database::addClient(std::string ip, std::vector<std::string> files) {
-    clients.emplace_back(ip, std::move(files));
-    return true;
+void Database::addClient(ClientInfo clientInfo) {
+    clients.emplace_back(clientInfo);
+}
+
+void Database::deleteClient() {
+    spdlog::info("delete client");
 }
