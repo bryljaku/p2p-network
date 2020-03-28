@@ -7,7 +7,7 @@ add_compile_options(-Wall -pthread)
 # spdlog
 add_library(spdlog STATIC IMPORTED)
 set_target_properties(spdlog PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/lib/spdlog/build/libspdlog.a)
-include_directories(lib/spdlog/include)
+include_directories(lib/spdlog/include include/server include/client)
 
 #### SOURCES
 add_subdirectory(src/client)
