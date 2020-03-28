@@ -4,4 +4,3 @@ mkdir build
 cd build
 cmake ..
 make -j
-sudo apt-get install libboost-test-dev
