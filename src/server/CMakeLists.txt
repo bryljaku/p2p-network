@@ -1,5 +1,5 @@
 project(server)
-set(SOURCE_FILES main.cpp)
+set(SOURCE_FILES main.cpp utils/GeneralTypes.h)
 
 add_executable(server ${SOURCE_FILES})
 
