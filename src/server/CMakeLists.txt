@@ -1,4 +1,5 @@
 file(GLOB SOURCE_FILES "*.cpp")
-add_executable(p2p-server ${SOURCE_FILES})
-include_directories(${CMAKE_SOURCE_DIR}/../../include/server)
+file(GLOB SHARED_SOURCES "../shared/*.cpp")
+add_executable(p2p-server ${SOURCE_FILES} ${SHARED_SOURCES})
+include_directories(${CMAKE_SOURCE_DIR}/../../include/server ${CMAKE_SOURCE_DIR}/../../include/shared)
 target_link_libraries(p2p-server spdlog)
