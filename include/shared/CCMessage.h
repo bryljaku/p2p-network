@@ -6,11 +6,15 @@
 #include "TcpMessage.h"
 #include <vector>
 #include <variant>
+#include <MessageUtils.h>
 
+using namespace std;
 class CCMessage : public TcpMessage {
-	std::vector<std::variant<int,std::string>> data;
+	vector<variant<int,string>> data;
 public:
-	void writeToBuf(void *buffer) override;
+	CCMessage(eTcpCode code);
+	size_t getRequiredBufSize() override;
+	size_t writeToBuf(void *buffer) override;
 };
 
 

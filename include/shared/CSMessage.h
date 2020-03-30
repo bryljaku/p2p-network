@@ -10,7 +10,8 @@
 class CSMessage : public TcpMessage {
 	std::vector<std::variant<int,std::string>> data;
 public:
-	void writeToBuf(void *buffer) override;
+	size_t getRequiredBufSize() override;
+	size_t writeToBuf(void *buffer) override;
 };
 
 

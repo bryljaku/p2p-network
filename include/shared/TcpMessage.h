@@ -19,7 +19,8 @@ public:
 	TcpMessage();
 	TcpMessage(eTcpCode _code);
 
-	virtual void writeToBuf(void *buffer);
+	virtual size_t getRequiredBufSize();
+	virtual size_t writeToBuf(void *buffer);	// returns bytes written
 };
 
 

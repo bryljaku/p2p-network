@@ -6,6 +6,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <CCMessage.h>
+
 void syslog_example()
 {
     // w konsoli "tail -f /var/log/syslog" i powinno byc widac ze wchodzi
@@ -17,6 +19,9 @@ void syslog_example()
 
 int main(int argc, char const *argv[])
 {
+	auto *test = new CCMessage(OK);
+	test->getRequiredBufSize()
+	return 0;
     int sock = 0, valread;
     struct sockaddr_in serv_addr;
     char *hello = "Hello from client";
