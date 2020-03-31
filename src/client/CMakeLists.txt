@@ -1,4 +1,6 @@
-file(GLOB SOURCE_FILES "*.cpp")
-add_executable(p2p-client ${SOURCE_FILES})
-include_directories(${CMAKE_SOURCE_DIR}/../../include/client)
-target_link_libraries(p2p-client spdlog)
+project(client)
+set(SOURCE_FILES main.cpp)
+
+add_executable(client ${SOURCE_FILES})
+
+target_link_libraries(client spdlog)

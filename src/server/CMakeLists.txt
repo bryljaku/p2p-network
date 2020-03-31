@@ -1,4 +1,8 @@
-file(GLOB SOURCE_FILES "*.cpp")
-add_executable(p2p-server ${SOURCE_FILES})
-include_directories(${CMAKE_SOURCE_DIR}/../../include/server)
-target_link_libraries(p2p-server spdlog)
+project(server)
+set(SOURCE_FILES main.cpp utils/GeneralTypes.h)
+
+add_executable(server ${SOURCE_FILES})
+
+add_subdirectory(database)
+
+target_link_libraries(server spdlog server_database)
