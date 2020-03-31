@@ -6,23 +6,24 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <CCMessage.h>
+#include "TcpMessage.pb.h"
+#include "sharedUtils.h"
 
-void syslog_example()
-{
-    // w konsoli "tail -f /var/log/syslog" i powinno byc widac ze wchodzi
-    std::string ident = "spdlog-example";
-    auto syslog_logger = spdlog::syslog_logger_mt("syslog", ident, LOG_PID);
-    syslog_logger->warn("This is warning that will end up in syslog.");
-}
 #define PORT 43557
 
-int main(int argc, char const *argv[])
-{
-	auto *test = new CCMessage(OK);
-	test->getRequiredBufSize()
-	return 0;
+int main(int argc, char const *argv[]) {
+	// initLogger wystarczy wywolac tylko raz na cale dzialanie programu
+	initLogger("p2p-client");
+	syslogger->info("p2p client starting");
     int sock = 0, valread;
+
+    TcpMessage* t = new TcpMessage();
+    t->set_code(TcpCode::UNKNOWN_ERROR);
+    std::string test = t->SerializeAsString();
+    TcpMessage z;
+    z.ParseFromString(test);
+    std::cout << z.code();
+
     struct sockaddr_in serv_addr;
     char *hello = "Hello from client";
     char buffer[1024] = {0};
