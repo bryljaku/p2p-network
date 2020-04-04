@@ -1,6 +1,16 @@
 project(client)
-set(SOURCE_FILES main.cpp)
+file(GLOB SOURCE_FILES "*.cpp")
+file(GLOB SHARED_SOURCES "../shared/*.cpp")
+file(GLOB PROTO_FILES "../../include/shared/protoc/*.proto")
 
-add_executable(client ${SOURCE_FILES})
+find_package(Protobuf REQUIRED)
 
+include_directories(${PROTOBUF_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_FILES})
+add_executable(client ${SOURCE_FILES} ${SHARED_SOURCES} ${PROTO_SRCS} ${PROTO_HDRS})
+
+include_directories(${CMAKE_SOURCE_DIR}/../../include/client ${CMAKE_SOURCE_DIR}/../../include/shared)
 target_link_libraries(client spdlog)
+target_link_libraries(client ${PROTOBUF_LIBRARY})
