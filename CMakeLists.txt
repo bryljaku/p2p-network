@@ -16,5 +16,5 @@ add_subdirectory(src/server)
 #### THREADS
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
-target_link_libraries(p2p-server Threads::Threads)
-target_link_libraries(p2p-client Threads::Threads)
+target_link_libraries(server Threads::Threads)
+target_link_libraries(client Threads::Threads)
