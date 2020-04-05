@@ -1,6 +1,12 @@
 #include "sharedUtils.h"
 
+#include <utility>
+
 std::shared_ptr<spdlog::logger> syslogger;
+
+SockException::SockException(std::string  message) : message_(std::move(message)) {
+
+}
 
 void initLogger(std::string ident) {
 	// w konsoli "tail -f /var/log/syslog" i powinno byc widac ze wchodzi

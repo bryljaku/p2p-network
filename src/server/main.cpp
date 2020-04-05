@@ -5,14 +5,13 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
 #include <pthread.h>
 #include "sharedUtils.h"
 #include "../../cmake-build-debug/src/client/TcpMessage.pb.h"
 
 #define SERVER_DEFAULT_PORT 59095
 #define SOCKET_DEFAULT_TIMEOUT 5	// in seconds TODO: zmienic na wyzszy timeout, bo tak to wywala klientow zaraz
-#define MAX_MESSAGE_SIZE 128*1024	// in bytes (128*1024) = 128 KiB
+#define CLIENT_MAX_MESSAGE_SIZE 128*1024	// in bytes (128*1024) = 128 KiB
 
 int guard(int r, const std::string& err) {
 	if (r == -1) {
@@ -47,7 +46,7 @@ void * trackerMainThread(void * arg) {
     std::string defaultTimeoutS = std::to_string(SOCKET_DEFAULT_TIMEOUT);
 
 
-    char buf[MAX_MESSAGE_SIZE];
+    char buf[CLIENT_MAX_MESSAGE_SIZE];
     for (;;) {
         int bytesReceived = recv(connFd, buf, sizeof(buf), 0);
         if (bytesReceived <= 0) {

@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 enum TcpCode {
-    PLACEHOLDER = 0;                // TODO: czemu sie sypie na SerializeAsString/Array??? daje pusty string, ale tak chyba ma byc
+    CONNERROR = 0;                // TODO: nie używać tego w przesyłaniu czegokolwiek, bo serializacja się sypie (tylko do użycia wewnątrz klienta/serwera
     UNKNOWN_ERROR = 1;
     OK = 2;
 
