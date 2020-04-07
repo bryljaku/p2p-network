@@ -8,6 +8,16 @@ SockException::SockException(std::string  message) : message_(std::move(message)
 
 }
 
+
+int guard(int r, const std::string& err) {
+	if (r == -1) {
+		syslogger->error(err);
+		perror(err.c_str());
+		exit(1);
+	}
+	return r;
+}
+
 void initLogger(std::string ident) {
 	// w konsoli "tail -f /var/log/syslog" i powinno byc widac ze wchodzi
 	// TODO: PONIZSZA WYWALIC, LOGUJE TYLKO DO STDOUT

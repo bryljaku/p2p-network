@@ -13,14 +13,6 @@
 #define SOCKET_DEFAULT_TIMEOUT 5	// in seconds TODO: zmienic na wyzszy timeout, bo tak to wywala klientow zaraz
 #define CLIENT_MAX_MESSAGE_SIZE 128*1024	// in bytes (128*1024) = 128 KiB
 
-int guard(int r, const std::string& err) {
-	if (r == -1) {
-		syslogger->error(err);
-		perror(err.c_str());
-		exit(1);
-	}
-	return r;
-}
 
 void respond(intptr_t connFd, TcpMessage *msg) {
 	TcpCode code = msg->code();
@@ -103,7 +95,7 @@ int main(int arg, char *argv[]) {
     syslogger->info("Listening on port " + std::to_string(ntohs(addr.sin_port)));
     for (;;) {
         intptr_t conn_fd = guard(accept(socketFd, NULL, NULL), "Could not accept");
-		setsockopt(conn_fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+//		setsockopt(conn_fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
         pthread_t thread_id;
         int ret = pthread_create(&thread_id, NULL, trackerMainThread, (void*) conn_fd);
         if (ret != 0) {

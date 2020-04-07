@@ -1,5 +1,6 @@
 #include "sharedUtils.h"
 #include "CSocket.h"
+#include "RequestHandler.h"
 #include "SSocket.h"
 
 #define PORT 59095
