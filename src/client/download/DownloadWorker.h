@@ -3,7 +3,6 @@
 
 
 class DownloadWorker {
-    void storeFile()
 
 };
 

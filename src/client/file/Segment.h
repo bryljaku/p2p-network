@@ -11,7 +11,6 @@ class Segment {
         
         ~Segment();
         SegmentId getId() const;
-
         uint8_t *getDataPtr() const;
         
     private:

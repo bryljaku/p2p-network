@@ -2,15 +2,21 @@
 #include "pthread.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/syslog_sink.h"
-void syslog_example()
-{
-    // w konsoli "tail -f /var/log/syslog" i powinno byc widac ze wchodzi
-    std::string ident = "spdlog-example";
-    auto syslog_logger = spdlog::syslog_logger_mt("syslog", ident, LOG_PID);
-    syslog_logger->warn("This is warning that will end up in syslog.");
-}
+#include "database/Database.h"
+
+
 int main() {
     spdlog::warn("client");
-    syslog_example();
+//    syslog_example();
+    
+//    auto db = Database();
+    Id testId = 0;
+    
+//    db.addFile(File(testId, 50000, "sys/path"));
+//    spdlog::info("{}", db.getFiles());
+//    auto f = db.getFile(testId);
+//    db.removeFIle(testId);
+//    spdlog::info("{}", db.getFiles().size());
+    
     return 0;
 }
