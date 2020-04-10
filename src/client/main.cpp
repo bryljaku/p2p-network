@@ -7,16 +7,10 @@
 
 int main() {
     spdlog::warn("client");
-//    syslog_example();
-    
-//    auto db = Database();
+    auto db = Database();
     Id testId = 0;
-    
-//    db.addFile(File(testId, 50000, "sys/path"));
-//    spdlog::info("{}", db.getFiles());
-//    auto f = db.getFile(testId);
-//    db.removeFIle(testId);
-//    spdlog::info("{}", db.getFiles().size());
-    
+    db.addFile(File(testId, 50000, "sys/path"));
+    auto f = db.getFile(testId);
+    db.removeFile(testId);
     return 0;
 }

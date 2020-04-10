@@ -1,7 +1,7 @@
 #include "File.h"
 
 #include <utility>
-#include <spdlog/spdlog.h>
+//#include <spdlog/spdlog.h>
 
 bool File::isComplete() {
     for (auto i: completeSegmentsBool)
@@ -32,7 +32,7 @@ File::File(Id id, int size, std::string path) {
     completeSegmentsBool = std::vector<bool>(this->numOfSegments, false);
     this->dataBegin = nullptr; // todo - it should be some dataptr to file on disk
     this->dataEnd = this->dataBegin + size;
-    spdlog::info("Created file with id {}", id);
+//    spdlog::info("Created file with id {}", id);
     
 }
 
@@ -42,11 +42,11 @@ void File::generateSegments() {
     else
         this->numOfSegments = size / DEFAULTSEGMENTSIZE + 1;
 
-    for (int i = 0; i < numOfSegments; i++) {
+    for (int i = 0; i < numOfSegments; i++)
         this->segments.emplace_back(Segment(i, this->dataBegin + DEFAULTSEGMENTSIZE * i));
         //todo
     
-    spdlog::info("Generated {} segments for file with id {}", numOfSegments, id);
+//    spdlog::info("Generated {} segments for file with id {}", numOfSegments, id);
 }
 
 std::vector<PeerInfo> File::getPeers() {

@@ -12,7 +12,7 @@ class Database {
 public:
     std::vector<std::shared_ptr<File>> getFiles();
     void addFile(File file);
-    void removeFIle(Id id);
+    void removeFile(Id id);
     void removeFile(std::string path);
     std::shared_ptr<File> getFile(Id id);
     std::shared_ptr<File> getFile(std::string path);
