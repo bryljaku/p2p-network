@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+enum TcpCode {
+    CONNERROR = 0;                // TODO: nie używać tego w przesyłaniu czegokolwiek, bo serializacja się sypie (tylko do użycia wewnątrz klienta/serwera
+    UNKNOWN_ERROR = 1;
+    OK = 2;
+
+    CS_SEEDLIST_REQUEST = 3;		// ask server for a list of users with a specified file
+    CS_SEEDLIST_RESPONSE = 4;
+    CS_CLIENT_UNAVAILABLE = 5;      // signal to tracker, that another client no longer owns a file
+    CS_IM_A_SEED = 6;              // report to tracker that a you have a complete file downloaded
+
+    CC_LIST_REQUEST = 7;			// ask a client for list of his completed file fragments
+    CC_LIST_RESPONSE = 8;
+    CC_FRAGMENT_REQUEST = 9;		// request another client to send the selected fragment
+    CC_FRAGMENT_RESPONSE = 10;
+}
+
+message TcpMessage {
+    TcpCode code = 1;
+}
