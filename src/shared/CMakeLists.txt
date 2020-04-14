@@ -1,5 +1,4 @@
 project(shared)
-
-set(SOURCE_FILES sharedUtils.cpp sharedUtils.h)
+file(GLOB SOURCE_FILES "./*")
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})

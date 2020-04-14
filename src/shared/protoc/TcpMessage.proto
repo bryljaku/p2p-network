@@ -9,6 +9,9 @@ enum TcpCode {
     CS_SEEDLIST_RESPONSE = 4;
     CS_CLIENT_UNAVAILABLE = 5;      // signal to tracker, that another client no longer owns a file
     CS_IM_A_SEED = 6;              // report to tracker that a you have a complete file downloaded
+    CS_NEW_REQUEST = 11;
+    CS_NEW_RESPONSE = 12;
+
 
     CC_LIST_REQUEST = 7;			// ask a client for list of his completed file fragments
     CC_LIST_RESPONSE = 8;
@@ -24,6 +27,12 @@ enum FileCode {
     F_FRAG_COMPLETE = 4;
 }
 
+message TorrentMessage {
+    uint64 hashed = 1;
+    uint32 size = 2;
+    string fileName = 3;
+}
+
 message TcpMessage {
     TcpCode code = 1;
     oneof contents {
@@ -31,6 +40,9 @@ message TcpMessage {
         SeedlistResponse seedlistResponse = 4;
         ClientUnavailable clientUnavailable = 5;
         ImASeed imASeed = 6;
+        NewRequest newRequest = 11;
+        NewResponse newResponse = 12;
+
 
         ListRequest listRequest = 7;
         ListResponse listReponse = 8;
@@ -76,4 +88,12 @@ message FragmentRequest {
 message FragmentResponse {
     FileCode fileCode = 1;
     bytes fragment = 2;
+}
+
+message NewRequest {
+    TorrentMessage torrentMsg = 1;
+}
+
+message NewResponse {
+    uint64 newHash = 1;
 }

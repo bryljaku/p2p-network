@@ -45,3 +45,25 @@ std::vector<ClientInfo> Database::getClients() {
     return clients;
 }
 
+bool Database::isHashUnique(size_t hash) {
+	for(auto torrent : torrents) {
+		if (torrent.hashed == hash) {
+			return false;
+		}
+	}
+	return true;
+}
+
+size_t Database::addTorrent(Torrent t) {
+	uint32_t salt = 1;
+	t.genDefaultHash();
+	while(!isHashUnique(t.hashed)) {
+		t.genSaltedHash(salt);
+		salt++;
+	}
+
+	torrents.push_back(t);
+
+	return t.hashed;
+}
+

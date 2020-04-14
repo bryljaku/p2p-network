@@ -1,5 +1,5 @@
 project(server)
-set(SOURCE_FILES main.cpp utils/GeneralTypes.h)
+file(GLOB SOURCE_FILES "./*")
 file(GLOB PROTO_FILES "../shared/protoc/*.proto")
 
 find_package(Protobuf REQUIRED)

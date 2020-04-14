@@ -16,4 +16,6 @@ int main(int argc, char const *argv[]) {
 	testTrackerSocket.start();
 	testTrackerSocket.sendOk();
 	testTrackerSocket.sendSeedlistRequest();
+	Torrent testTorrent(123, "test.txt");
+	testTrackerSocket.sendNewTorrentRequest(testTorrent);
 }

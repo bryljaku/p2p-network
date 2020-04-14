@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <pthread.h>
+#include <Torrent.h>
 #include "sharedUtils.h"
 
 #define SERVER_DEFAULT_PORT 59095
@@ -25,6 +26,14 @@ void respond(intptr_t connFd, TcpMessage *msg) {
 		auto t = new SeedlistResponse;			// delete(t) not needed, Protobuf does it when freeing response
 		t->add_ipv4peers("TEST");
 		response.set_allocated_seedlistresponse(t);
+		sendTcpMsg(connFd, &response);
+	} else if (code == CS_NEW_REQUEST) {
+		Torrent newTorrent(msg->newrequest().torrentmsg());	//TODO: jeszcze musimy dodac do bazy danych
+		newTorrent.genDefaultHash();
+		response.set_code(CS_NEW_RESPONSE);
+		auto t = new NewResponse;
+		t->set_newhash(newTorrent.hashed);
+		response.set_allocated_newresponse(t);
 		sendTcpMsg(connFd, &response);
 	}
 }

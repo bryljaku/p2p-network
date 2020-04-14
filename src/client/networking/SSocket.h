@@ -3,6 +3,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <utility>
+#include <Torrent.h>
 #include "sharedUtils.h"
 
 #define TRACKER_MAX_MESSAGE_SIZE 128*1024	// in bytes
@@ -27,6 +28,7 @@ public:
 // TCP COMMUNICATION
 	TcpCode sendOk();			// expected result: OK from server
 	Ips sendSeedlistRequest();	//TODO: testowe, trzeba dodac jakis identyfikator torrenta jako argument do przeslania
+	size_t sendNewTorrentRequest(Torrent t);	// returns 0 if adding was unsuccessful
 private:
 	void receive();				// starts listening for data - puts it in lastMsg
 	void send(TcpMessage *m);

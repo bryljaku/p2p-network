@@ -1,5 +1,5 @@
 project(client)
-set(SOURCE_FILES main.cpp)
+file(GLOB SOURCE_FILES "./*")
 file(GLOB PROTO_FILES "../shared/protoc/*.proto")
 
 find_package(Protobuf REQUIRED)
