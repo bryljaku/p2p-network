@@ -7,7 +7,6 @@
 #include <netinet/in.h>
 #include <pthread.h>
 #include "sharedUtils.h"
-#include "../../cmake-build-debug/src/client/TcpMessage.pb.h"
 
 #define SERVER_DEFAULT_PORT 59095
 #define SOCKET_DEFAULT_TIMEOUT 5	// in seconds TODO: zmienic na wyzszy timeout, bo tak to wywala klientow zaraz
