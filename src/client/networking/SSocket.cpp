@@ -58,6 +58,7 @@ void SSocket::receive() {
 		}
 		lastMsg.ParseFromArray(readBuffer, bytesRead);
 		logTcpCode(&lastMsg);
+		state = RECVD;
 	}
 }
 
@@ -103,4 +104,18 @@ TcpCode SSocket::sendOk() {
 	}
 
 	return CONNERROR;
+}
+
+Ips SSocket::sendSeedlistRequest() {
+	TcpMessage t;
+	t.set_code(TcpCode::CS_SEEDLIST_REQUEST);
+	send(&t);
+
+	if(state == SENT) {
+		receive();
+		if(state == RECVD && lastMsg.code()==CS_SEEDLIST_RESPONSE) {
+			syslogger->debug(lastMsg.seedlistresponse().ipv4peers().at(0));
+		}
+	}
+	return Ips();
 }

@@ -23,7 +23,10 @@ class SSocket {
 public:
 	SSocket(std::string trackerIp, uint trackerPort);
 	eSocketState start();
+
+// TCP COMMUNICATION
 	TcpCode sendOk();			// expected result: OK from server
+	Ips sendSeedlistRequest();	//TODO: testowe, trzeba dodac jakis identyfikator torrenta jako argument do przeslania
 private:
 	void receive();				// starts listening for data - puts it in lastMsg
 	void send(TcpMessage *m);
