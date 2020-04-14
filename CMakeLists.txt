@@ -25,7 +25,7 @@ endif()
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_FILES})
-add_custom_target(protobuf ALL DEPENDS ${PROTO_HEADER} ${PROTO_SRC})
+add_custom_target(protobuf ALL DEPENDS ${PROTO_HDRS} ${PROTO_SRCS})
 
 #### SOURCES
 add_subdirectory(src/client)
