@@ -4,6 +4,7 @@
 #include <TcpMessage.pb.h>
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/syslog_sink.h"
+#include "../../src/server/utils/GeneralTypes.h"
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -30,6 +31,11 @@ public:
 	virtual const char* what() const noexcept {
 		return message_.c_str();
 	}
+};
+
+struct Ips {
+	std::vector<IpV4Address> ipv4s;
+	std::vector<IpV6Address> ipv6s;
 };
 
 int guard(int r, const std::string& err);

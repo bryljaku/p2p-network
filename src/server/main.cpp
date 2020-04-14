@@ -16,15 +16,16 @@
 
 void respond(intptr_t connFd, TcpMessage *msg) {
 	TcpCode code = msg->code();
-	bool responseRequired = false;
 	TcpMessage response;
 
 	if(code == OK) {
-		responseRequired = true;
 		response.set_code(OK);
-	}
-
-	if(responseRequired) {
+		sendTcpMsg(connFd, &response);
+	} else if (code == CS_SEEDLIST_REQUEST) {	//TODO: jak na razie tylko test, ale dziala
+		response.set_code(CS_SEEDLIST_RESPONSE);
+		auto t = new SeedlistResponse;			// delete(t) not needed, Protobuf does it when freeing response
+		t->add_ipv4peers("TEST");
+		response.set_allocated_seedlistresponse(t);
 		sendTcpMsg(connFd, &response);
 	}
 }

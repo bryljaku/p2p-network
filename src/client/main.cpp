@@ -14,4 +14,5 @@ int main(int argc, char const *argv[]) {
 	SSocket testTrackerSocket("127.0.0.1", PORT);
 	testTrackerSocket.start();
 	testTrackerSocket.sendOk();
+	testTrackerSocket.sendSeedlistRequest();
 }

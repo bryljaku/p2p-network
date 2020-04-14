@@ -16,6 +16,64 @@ enum TcpCode {
     CC_FRAGMENT_RESPONSE = 10;
 }
 
+enum FileCode {
+    F_ERROR = 0;                     // TODO: też lepiej tego nie uzywac, dla bezpieczenstwa
+    F_DENY = 1;
+    F_NO_FILE = 2;
+    F_FRAG_MISSING = 3;
+    F_FRAG_COMPLETE = 4;
+}
+
 message TcpMessage {
     TcpCode code = 1;
+    oneof contents {
+        SeedlistRequest seedlistRequest = 3;
+        SeedlistResponse seedlistResponse = 4;
+        ClientUnavailable clientUnavailable = 5;
+        ImASeed imASeed = 6;
+
+        ListRequest listRequest = 7;
+        ListResponse listReponse = 8;
+        FragmentRequest fragmentRequest = 9;
+        FragmentResponse fragmentResponse = 10;
+    }
+}
+
+message SeedlistRequest {
+    //TODO: wysylamy pewnie jakis adres? nazwe? coś po czym serwer rozpozna plik
+}
+
+message SeedlistResponse {
+    repeated string ipV4Seeds = 1;
+    repeated string ipV4Peers = 2;
+    repeated string ipV6Seeds = 3;
+    repeated string ipV6Peers = 4;
+}
+
+message ClientUnavailable {                     // wysylane co jakis czas do trackerow, jak zbierzemy liste niedostepnych
+    //TODO: na pewno cos jeszcze trzeba dodac
+    repeated string ipV4Addresses = 1;
+    repeated string ipV6Addresses = 2;
+}
+
+message ImASeed {
+    //TODO: pewnie to samo co w SeedlistRequest wysylamy
+}
+
+message ListRequest {
+    //TODO
+}
+
+message ListResponse {
+    FileCode fileCode = 1;
+    repeated uint32 fragments = 2;
+}
+
+message FragmentRequest {
+    //TODO: to samo co w SeedlistRequest + nr fragmentu
+}
+
+message FragmentResponse {
+    FileCode fileCode = 1;
+    bytes fragment = 2;
 }
