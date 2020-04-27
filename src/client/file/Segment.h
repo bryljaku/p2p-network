@@ -6,12 +6,12 @@
 
 class Segment {
     public:
-        Segment(SegmentId id, uint8_t *data);
+        Segment(Id id, uint8_t *data);
         ~Segment() = default;
-        SegmentId getId() const;
+        Id getId() const;
         uint8_t *getDataPtr() const;
     private:
-        SegmentId id;
+        Id id;
         uint8_t *data;
 };
 
