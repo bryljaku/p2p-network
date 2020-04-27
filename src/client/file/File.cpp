@@ -57,10 +57,18 @@ Id File::getId() {
     return id;
 }
 
+Filename File::getName() {
+    return name;
+}
+
 int File::getNumOfSegments() {
     return numOfSegments;
 }
 
 std::string File::getPath() {
     return path;
+}
+
+uint8_t* File::getDataBegin() {
+    return dataBegin;
 }

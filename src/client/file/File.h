@@ -10,6 +10,7 @@
 
 class File {
     Id id;
+    Filename name;
     std::vector<Segment> segments;
     int numOfSegments;
     int size;
@@ -24,11 +25,14 @@ public:
     bool isComplete();
     Segment getSegment(int id);
     Id getId();
+    Filename getName();
     std::string getPath();
     std::vector<PeerInfo> getPeers();
     int getNumOfSegments();
     int getSize();
+    uint8_t* getDataBegin();
     SegmentId getSegmentIdToDownload();
+
 
 private:
     void generateSegments();
