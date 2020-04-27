@@ -37,6 +37,7 @@
 \usepackage[parfill]{parskip} % Activate to begin paragraphs with an empty line rather than an indent
 
 %%% PACKAGES
+\usepackage{copyrightbox}
 \usepackage{booktabs} % for much better looking tables
 \usepackage{array} % for better arrays (eg matrices) in maths
 \usepackage{paralist} % very flexible & customisable lists (eg. enumerate/itemize, etc.)
@@ -71,7 +72,7 @@
 %%% The "real" document content comes below...
 
 \title{ConcreteTorrent - Projekt Wstępny}
-\author{Jakub Bryl, Bartosz Ciućkowski, Michał Mazurek, Piotr Zmyślony}
+\author{Jakub Bryl(lider), Bartosz Ciućkowski, Michał Mazurek, Piotr Zmyślony}
 \date{6 kwietnia 2020} % Activate to display a given date or no date (if empty),
 % otherwise the current date is printed 
 
@@ -91,6 +92,7 @@ Krótki słownik pojęć stosowanych w dalszej części dokumentu:
 \item \textbf{Seed} - klient posiadający kompletny plik.
 \item \textbf{Peer} - klient posiadający fragmenty plików, które udostępnia i równocześnie pobiera brakujące fragmenty.
 \item \textbf{Segment} - fragment pliku.
+\item \textbf{Torrent} - struktura danych przechowująca informacje o danym pliku
 \end{itemize}
 
 \section{Założenia funkcjonalne i niefunkcjonalne}
@@ -103,7 +105,7 @@ Wymagania funkcjonalne:
 \end{enumerate}
 Wymagania niefunkcjonalne:
 \begin{enumerate}
-\item Tracker powinien zwracać listę osób, od których użytkownik może pobrać plik w rozsądnym czasie.
+\item Tracker powinien zwracać listę klientów, od których użytkownik może pobrać plik w rozsądnym czasie.
 \end{enumerate}
 \subsection{Wymagania dotyczące klienta}
 Wymagania funkcjonalne:
@@ -116,9 +118,15 @@ Wymagania funkcjonalne:
 \end{enumerate}
 Wymagania niefunkcjonalne:
 \begin{enumerate}
-\item Klient nie powinien mieć problemu z jednoczesnym pobieraniem od 5 osób.
+\item Klient nie powinien mieć problemu z jednoczesnym pobieraniem od 5 klientów.
 \item Klient powinien móc zamknąć program bez ryzyka utraty pobranych fragmentów.
 \item W przypadku awarii fragmenty plików już pobranych powinny być niezagrożone
+\end{enumerate}
+
+\subsection{Dodatkowe założenia}
+\begin{enumerate}
+\item Torrent będzie zawierał nazwę pliku, jego rozmiar, datę udostępnienia w systemie oraz skrót obliczony na podstawie wymienionych wczesniej danych.
+\item Pliki będą identyfikowane na podstawie skrótu wygenerowanego na serwerze. W razie wystąpienia konfliktu skrótów do identyfikacji będzie też używana nazwa pliku. 
 \end{enumerate}
 
 \section{Podstawowe przypadki użycia}
@@ -179,7 +187,8 @@ Catch lub Boost.Test (jeszcze do ustalenia), Docker
 \begin{figure}[h]
 \caption{Schemat komunikacji sieciowej}
 \centering
-\includegraphics[scale=0.8]{0}
+\copyrightbox[b]{\includegraphics[scale=0.8]{0}}
+{Źródło: https://www.researchgate.net/figure/BitTorrent-protocol-A-peer-enters-the-swarm-via-the-tracker-and-starts-exchanging-file\_fig1\_225633414}
 \end{figure}
 \clearpage
 \subsection{Budowa klienta}

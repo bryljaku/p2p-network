@@ -1,14 +1,14 @@
 syntax = "proto3";
 
 enum TcpCode {
-    CONNERROR = 0;                // TODO: nie używać tego w przesyłaniu czegokolwiek, bo serializacja się sypie (tylko do użycia wewnątrz klienta/serwera
+    CONNERROR = 0;              	// TODO: nie używać tego w przesyłaniu czegokolwiek, bo serializacja się sypie (tylko do użycia wewnątrz klienta/serwera
     UNKNOWN_ERROR = 1;
     OK = 2;
 
     CS_SEEDLIST_REQUEST = 3;		// ask server for a list of users with a specified file
     CS_SEEDLIST_RESPONSE = 4;
     CS_CLIENT_UNAVAILABLE = 5;      // signal to tracker, that another client no longer owns a file
-    CS_IM_A_SEED = 6;              // report to tracker that a you have a complete file downloaded
+    CS_IM_A_SEED = 6;             	// report to tracker that a you have a complete file downloaded
     CS_NEW_REQUEST = 11;
     CS_NEW_RESPONSE = 12;
 
@@ -20,7 +20,7 @@ enum TcpCode {
 }
 
 enum FileCode {
-    F_ERROR = 0;                     // TODO: też lepiej tego nie uzywac, dla bezpieczenstwa
+    F_ERROR = 0;                     // TODO: też lepiej tego F_ERROR nie uzywac, dla bezpieczenstwa
     F_DENY = 1;
     F_NO_FILE = 2;
     F_FRAG_MISSING = 3;
@@ -52,48 +52,52 @@ message TcpMessage {
 }
 
 message SeedlistRequest {
-    //TODO: wysylamy pewnie jakis adres? nazwe? coś po czym serwer rozpozna plik
+    uint64 hashedTorrent = 1;
 }
 
 message SeedlistResponse {
-    repeated string ipV4Seeds = 1;
-    repeated string ipV4Peers = 2;
-    repeated string ipV6Seeds = 3;
-    repeated string ipV6Peers = 4;
+	uint64 hashedTorrent = 1;
+    repeated string ipV4Seeds = 2;
+    repeated string ipV4Peers = 3;
+    repeated string ipV6Seeds = 4;
+    repeated string ipV6Peers = 5;
 }
 
-message ClientUnavailable {                     // wysylane co jakis czas do trackerow, jak zbierzemy liste niedostepnych
-    //TODO: na pewno cos jeszcze trzeba dodac
+message ClientUnavailable {				// wysylane co jakis czas do trackerow, jak zbierzemy liste niedostepnych
     repeated string ipV4Addresses = 1;
     repeated string ipV6Addresses = 2;
 }
 
-message ImASeed {
-    //TODO: pewnie to samo co w SeedlistRequest wysylamy
+message ImASeed {			// powiadamiamy trackera, ze mamy juz caly plik pobrany
+    uint64 hashedTorrent = 1;
 }
 
-message ListRequest {
-    //TODO
+message ListRequest {		// pytamy o posiadane fragmenty
+    uint64 hashedTorrent = 1;
 }
 
-message ListResponse {
-    FileCode fileCode = 1;
-    repeated uint32 fragments = 2;
+message ListResponse {		// odsylamy listę posiadanych frag.
+	uint64 hashedTorrent = 1;
+    FileCode fileCode = 2;
+    repeated uint32 fragments = 3;
 }
 
-message FragmentRequest {
-    //TODO: to samo co w SeedlistRequest + nr fragmentu
+message FragmentRequest {	// wysylamy zapytanie o kilka fragmentow
+    uint64 hashedTorrent = 1;
+	repeated uint32 fragments = 2;
 }
 
-message FragmentResponse {
-    FileCode fileCode = 1;
-    bytes fragment = 2;
+message FragmentResponse {	// odpowiadamy jednym fragmentem
+	uint64 hashedTorrent = 1;
+    FileCode fileCode = 2;
+    bytes fragment = 3;	// tutaj bajty fragmentu
 }
 
-message NewRequest {
+message NewRequest {		// chcemy dodac nowy torrent
     TorrentMessage torrentMsg = 1;
 }
 
-message NewResponse {
-    uint64 newHash = 1;
+message NewResponse {		// wygenerowany nowy hash torrenta
+	FileCode fileCode = 1;
+    uint64 newHash = 2;
 }

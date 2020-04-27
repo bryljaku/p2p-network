@@ -27,8 +27,8 @@ public:
 
 // TCP COMMUNICATION
 	TcpCode sendOk();			// expected result: OK from server
-	Ips sendSeedlistRequest();	//TODO: testowe, trzeba dodac jakis identyfikator torrenta jako argument do przeslania
-	size_t sendNewTorrentRequest(Torrent t);	// returns 0 if adding was unsuccessful
+	Ips sendSeedlistRequest(uint64_t hashedTorrent);
+	uint64_t sendNewTorrentRequest(Torrent t);	// returns 0 if adding was unsuccessful
 private:
 	void receive();				// starts listening for data - puts it in lastMsg
 	void send(TcpMessage *m);
