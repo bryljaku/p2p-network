@@ -3,6 +3,11 @@
 
 #include <vector>
 #include "../utils/GeneralTypes.h"
+enum SegmentState {
+    FREE,
+    DOWNLOADING,
+    COMPLETE
+};
 
 class Segment {
     public:
@@ -10,7 +15,10 @@ class Segment {
         ~Segment() = default;
         Id getId() const;
         uint8_t *getDataPtr() const;
+        void setSegmentState(SegmentState state);
+        SegmentState getSegmentState();
     private:
+        SegmentState state;
         Id id;
         uint8_t *data;
 };
