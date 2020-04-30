@@ -5,7 +5,7 @@
 
 bool File::isComplete() {
     for (auto s: segments)
-        if (COMPLETE != !s.getSegmentState())
+        if (COMPLETE != s.getSegmentState())
             return false;
     return true;
 }
