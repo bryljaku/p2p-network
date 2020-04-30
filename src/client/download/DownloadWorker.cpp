@@ -17,6 +17,7 @@ std::thread DownloadWorker::startWorker() {
 
 void DownloadWorker::work() {
     sleep(1);
+    finished = true;
 }
 void DownloadWorker::connect() {
 
@@ -24,5 +25,17 @@ void DownloadWorker::connect() {
 
 void DownloadWorker::close_connection() {
 
+}
+
+std::shared_ptr<PeerInfo> DownloadWorker::getPeer() {
+    return peer;
+}
+
+bool DownloadWorker::isDone() {
+    return finished;
+}
+
+DownloadWorker::~DownloadWorker() {
+    close_connection();
 }
 

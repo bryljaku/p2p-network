@@ -41,6 +41,27 @@ void DownloadManager::startWorkers() {
 
 
 void DownloadManager::manageWorkers() {
+    while(checkIfWorkersWork()) {
+        if (file->isComplete()) {
+            syslogger->info("Download completed for file {}", file->getPath());
+            return;
+        }
+        updatePeers();
+        // todo - check if there are any problems with workers, maybe add some kind of timeout for worker - when there are no responses from peer
+        sleep(1);
+    }
+}
+void DownloadManager::updatePeers() {
 //todo
+}
+bool DownloadManager::checkIfWorkersWork() {
+    for (auto w: workers)
+        if (!w->isDone())
+            return true;
+    return false;
+}
+
+DownloadManager::~DownloadManager() {
+    joinWorkers();
 }
 

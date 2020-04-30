@@ -19,13 +19,17 @@ class DownloadManager {
 public:
     DownloadManager(Database database, std::shared_ptr<File> file):database(database), file(std::move(file)) {};
     
-    ~DownloadManager() = default;
+    ~DownloadManager();
     std::thread start_manager();
     void createWorkers();
     void manageWorkers();
     void startWorkers();
-    void joinWorkers();
     void closeWorkers();
+    void joinWorkers();
+    
+    void updatePeers();
+    
+    bool checkIfWorkersWork();
 };
 
 

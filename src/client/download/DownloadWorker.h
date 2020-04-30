@@ -10,6 +10,7 @@ class DownloadWorker {
     Database database;
     std::shared_ptr<File> file;
     std::shared_ptr<PeerInfo> peer;
+    bool finished;
 public:
     DownloadWorker(
             Database &database,
@@ -18,10 +19,11 @@ public:
             ):
             database(database),
             file(std::move(file)),
-            peer(std::move(peer)){}
-    ~DownloadWorker() = default;
-    
+            peer(std::move(peer)){finished=false;}
+    ~DownloadWorker();
+    std::shared_ptr<PeerInfo> getPeer();
     std::thread startWorker();
+    bool isDone();
     void connect();
     void work();
     void close_connection();
