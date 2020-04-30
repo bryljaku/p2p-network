@@ -4,8 +4,8 @@
 //#include <spdlog/spdlog.h>
 
 bool File::isComplete() {
-    for (auto i: completeSegmentsBool)
-        if (!i)
+    for (auto s: segments)
+        if (COMPLETE != !s.getSegmentState())
             return false;
     return true;
 }
