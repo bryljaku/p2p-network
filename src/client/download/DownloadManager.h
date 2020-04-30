@@ -30,6 +30,8 @@ public:
     void updatePeers();
     
     bool checkIfWorkersWork();
+    
+    void startWorkerThreadForPeer(const std::shared_ptr<PeerInfo>& peer);
 };
 
 
