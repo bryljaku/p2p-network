@@ -5,36 +5,18 @@
 #include <utility>
 #include <Torrent.h>
 #include "sharedUtils.h"
+#include "BaseSocket.h"
 
-#define TRACKER_MAX_MESSAGE_SIZE 128*1024	// in bytes
-#define DEFAULT_RECV_TIMEOUT 5				// in seconds
+
 
 // client - single tracker communication
-class SSocket {
-	intptr_t sockFd;	// socket descriptor
-	fd_set sockSelectSet;
-	struct timeval recvTimeout;
-	std::string trackerIpString;
-	uint trackerPort;
-
-	char readBuffer[TRACKER_MAX_MESSAGE_SIZE] = {0};
-	TcpMessage lastMsg;
-	eSocketState state;
-
+class SSocket : public BaseSocket {
 public:
 	SSocket(std::string trackerIp, uint trackerPort);
-	eSocketState start();
-
 // TCP COMMUNICATION
 	TcpCode sendOk();			// expected result: OK from server
 	Ips sendSeedlistRequest(uint64_t hashedTorrent);
 	uint64_t sendNewTorrentRequest(Torrent t);	// returns 0 if adding was unsuccessful
-private:
-	void receive();				// starts listening for data - puts it in lastMsg
-	void send(TcpMessage *m);
-	void handleSendError();
-	void handleRecvError();
-	void logTcpCode(TcpMessage *m);
 };
 
 
