@@ -27,10 +27,16 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_FILES})
 add_custom_target(protobuf ALL DEPENDS ${PROTO_HDRS} ${PROTO_SRCS})
 
+
+
 #### SOURCES
 add_subdirectory(src/client)
 add_subdirectory(src/server)
 add_subdirectory(src/shared)
+
+#### TESTS
+add_subdirectory(src/client/tests)
+add_subdirectory(src/server/tests)
 
 target_link_libraries(server shared)
 target_link_libraries(client shared)
