@@ -1,4 +1,4 @@
-#include <src/shared/sharedUtils.h>
+#include <sharedUtils.h>
 #include "DownloadManager.h"
 
 std::thread DownloadManager::start_manager() {

@@ -4,7 +4,7 @@
 
 #include <thread>
 #include <utility>
-#include <src/client/database/Database.h>
+#include <database/Database.h>
 
 class DownloadWorker {
     Database database;

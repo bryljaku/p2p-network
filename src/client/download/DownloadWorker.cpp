@@ -1,4 +1,4 @@
-#include <src/shared/sharedUtils.h>
+#include <sharedUtils.h>
 #include "DownloadWorker.h"
 
 std::thread DownloadWorker::startWorker() {

@@ -1,5 +1,6 @@
 project(client_download)
-
+include_directories(../../shared)
+include_directories(../.)
 set(SOURCE_FILES
         DownloadManager.cpp DownloadManager.h DownloadWorker.cpp DownloadWorker.h)
 

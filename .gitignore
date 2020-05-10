@@ -1,6 +1,7 @@
 /.idea/
 /cmake-build-debug/
 /protobuf-3.11.4/
+/boost-built-1_73_0/
 *Makefile*
 *.cbp
 cmake_install.cmake

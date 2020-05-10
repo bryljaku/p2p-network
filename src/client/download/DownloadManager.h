@@ -2,8 +2,8 @@
 #define P2P_NETWORK_DOWNLOADMANAGER_H
 
 #include <bits/shared_ptr.h>
-#include <src/client/file/File.h>
-#include <src/client/database/Database.h>
+#include <database/Database.h>
+#include <file/File.h>
 
 #include <utility>
 #include "DownloadWorker.h"

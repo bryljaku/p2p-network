@@ -1,4 +1,4 @@
-set(BOOST_ROOT "../../../../boost-built-1_73_0")
+set(BOOST_ROOT "../../../boost-built-1_73_0")
 set (Boost_USE_STATIC_LIBS OFF)
 find_package (Boost REQUIRED COMPONENTS unit_test_framework)
 include_directories (${Boost_INCLUDE_DIRS})
