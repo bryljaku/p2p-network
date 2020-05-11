@@ -15,8 +15,8 @@ public:
 	SSocket(std::string trackerIp, uint trackerPort);
 // TCP COMMUNICATION
 	TcpCode sendOk();			// expected result: OK from server
+	uint64_t sendNewTorrentRequest(Torrent torrent);	// returns 0 if adding was unsuccessful
 	Ips sendSeedlistRequest(uint64_t hashedTorrent);
-	uint64_t sendNewTorrentRequest(Torrent t);	// returns 0 if adding was unsuccessful
 };
 
 

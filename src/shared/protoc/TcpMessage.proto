@@ -37,18 +37,18 @@ message TorrentMessage {
 message TcpMessage {
     TcpCode code = 1;
     oneof contents {
-        SeedlistRequest seedlistRequest = 3;
-        SeedlistResponse seedlistResponse = 4;
-        ClientUnavailable clientUnavailable = 5;
-        ImASeed imASeed = 6;
-        NewRequest newRequest = 11;
-        NewResponse newResponse = 12;
+        SeedlistRequest seedlistRequest = 2;
+        SeedlistResponse seedlistResponse = 3;
+        ClientUnavailable clientUnavailable = 4;
+        ImASeed imASeed = 5;
+        NewRequest newRequest = 10;
+        NewResponse newResponse = 11;
 
 
-        ListRequest listRequest = 7;
-        ListResponse listReponse = 8;
-        FragmentRequest fragmentRequest = 9;
-        FragmentResponse fragmentResponse = 10;
+        ListRequest listRequest = 6;
+        ListResponse listResponse = 7;
+        FragmentRequest fragmentRequest = 8;
+        FragmentResponse fragmentResponse = 9;
     }
 }
 
