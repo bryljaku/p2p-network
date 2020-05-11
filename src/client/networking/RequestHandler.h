@@ -13,7 +13,7 @@ class RequestHandler {
 	std::vector<CSocket> clients;
 
 private:
-	void addClient(intptr_t clientFd);
+	//void addClient(intptr_t clientFd);
 public:
 	int openListener(std::string ip, uint port);	// returns -1 if failed, 0 otherwise
 
