@@ -26,6 +26,7 @@ void respond(intptr_t connFd, TcpMessage *msg) {
 		auto t = new SeedlistResponse;			// delete(t) not needed, Protobuf does it when freeing response
 		t->add_ipv4peers("TEST");
 		response.set_allocated_seedlistresponse(t);
+		syslogger->debug(response.SerializeAsString());
 		sendTcpMsg(connFd, &response);
 	} else if (code == CS_NEW_REQUEST) {
 		Torrent newTorrent(msg->newrequest().torrentmsg());	//TODO: jeszcze musimy dodac do bazy danych

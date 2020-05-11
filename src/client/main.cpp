@@ -10,7 +10,7 @@
 #include "database/Database.h"
 
 #define PORT 59095
-#define CLIENT_DEFAULT_PORT 59095
+#define CLIENT_DEFAULT_PORT 59096
 #define SOCKET_DEFAULT_TIMEOUT 5			//TODO: zwiekszyc potem
 #define CLIENT_MAX_MESSAGE_SIZE 128*1024	// in bytes
 
@@ -23,20 +23,20 @@ void respond(intptr_t connFd, TcpMessage *msg) {
 		sendTcpMsg(connFd, &response);
 	} else if (code == CC_LIST_REQUEST) {
 		response.set_code(CC_LIST_RESPONSE);
-		ListResponse lr;
-		lr.set_filecode(F_FRAG_COMPLETE);		// TODO: complete jak wysylamy liste kompletnych, missing jak listę brakujacych
-		lr.set_hashedtorrent(msg->listrequest().hashedtorrent());
+		auto lr = new ListResponse;
+		lr->set_filecode(F_FRAG_COMPLETE);		// TODO: complete jak wysylamy liste kompletnych, missing jak listę brakujacych
+		lr->set_hashedtorrent(msg->listrequest().hashedtorrent());
 //		lr.set_fragments(index, numer fragmentu)	// TODO: powstawiac posiadane numery fragmentow
-		response.set_allocated_listreponse(&lr);
+		response.set_allocated_listresponse(lr);
 		sendTcpMsg(connFd, &response);
 	} else if (code == CC_FRAGMENT_REQUEST) {
 		response.set_code(CC_FRAGMENT_RESPONSE);
-		FragmentResponse fr;
-		fr.set_filecode(F_FINE);
-		fr.set_fragnum(msg->fragmentrequest().fragnum());
-		fr.set_hashedtorrent(msg->mutable_fragmentrequest()->hashedtorrent());
-//		fr.set_fragment(tutaj bajty)	;			// TODO: wstawic bajty fragmentu
-		response.set_allocated_fragmentresponse(&fr);
+		auto fr = new FragmentResponse;
+		fr->set_filecode(F_FINE);
+		fr->set_fragnum(msg->fragmentrequest().fragnum());
+		fr->set_hashedtorrent(msg->mutable_fragmentrequest()->hashedtorrent());
+//		fr->set_fragment(tutaj bajty)	;			// TODO: wstawic bajty fragmentu
+		response.set_allocated_fragmentresponse(fr);
 		sendTcpMsg(connFd, &response);
 	}
 }
@@ -72,24 +72,11 @@ void * clientResponderMainThread(void * arg) {
 int main(int argc, char *argv[]) {
 	initLogger("p2p-client");
 	syslogger->info("p2p client starting");
-	Database database;
-	std::shared_ptr<File> file(std::make_shared<File>(0, 10, "./path"));
-	file->addPeer(PeerInfo(1, "127.0.0.1", "", "9999"));
-	file->addPeer(PeerInfo(2, "127.0.0.1", "", "9992"));
-	file->addPeer(PeerInfo(3, "127.0.0.1", "", "9993"));
-    DownloadManager manager(database, file);
-    auto mngThread = manager.start_manager();
-    mngThread.join();
-	SSocket testTrackerSocket("127.0.0.1", PORT);
-	testTrackerSocket.start();
-	testTrackerSocket.sendOk();
-	testTrackerSocket.sendSeedlistRequest(1);
-	Torrent testTorrent(123, "test.txt");
-	testTrackerSocket.sendNewTorrentRequest(testTorrent);
 
 	int port = CLIENT_DEFAULT_PORT;
+	int doTest = true;
 	for(;;) {
-		switch(getopt(argc, argv, "p:")) {
+		switch(getopt(argc, argv, "sp:")) {
 			case 'p': {
 				int potentialPort = (int) strtol(optarg, nullptr, 10);
 				if(potentialPort<1024 || potentialPort>65535) {
@@ -98,11 +85,33 @@ int main(int argc, char *argv[]) {
 				}
 			}
 				continue;
+			case 's':
+				doTest = false;
+				continue;
 			case -1:
 				break;
 		}
 		break;
 	}
+
+	if(doTest) {
+		Database database;
+		std::shared_ptr<File> file(std::make_shared<File>(0, 10, "./path"));
+		file->addPeer(PeerInfo(1, "127.0.0.1", "", "9999"));
+		file->addPeer(PeerInfo(2, "127.0.0.1", "", "9992"));
+		file->addPeer(PeerInfo(3, "127.0.0.1", "", "9993"));
+		DownloadManager manager(database, file);
+		auto mngThread = manager.start_manager();
+		mngThread.join();
+		SSocket testTrackerSocket("127.0.0.1", PORT);
+		testTrackerSocket.start();
+		testTrackerSocket.sendOk();
+		testTrackerSocket.sendSeedlistRequest(1);
+		Torrent testTorrent(123, "test.txt");
+		testTrackerSocket.sendNewTorrentRequest(testTorrent);
+	}
+
+
 	std::string portS  = std::to_string(port);
 	int socketFd = guard(socket(AF_INET, SOCK_STREAM, 0), "Could not create TCP listening socket");
 

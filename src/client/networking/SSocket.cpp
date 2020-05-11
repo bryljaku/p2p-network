@@ -15,31 +15,15 @@ TcpCode SSocket::sendOk() {
 	return CONNERROR;
 }
 
-Ips SSocket::sendSeedlistRequest(uint64_t hashedTorrent) {
-	TcpMessage t;
-	t.set_code(TcpCode::CS_SEEDLIST_REQUEST);
-	SeedlistRequest n;
-	n.set_hashedtorrent(hashedTorrent);
-	t.set_allocated_seedlistrequest(&n);
-	send(&t);
 
-	if(state == SENT) {
-		receive();
-		if(state == RECVD && lastMsg.code()==CS_SEEDLIST_RESPONSE) {
-			syslogger->debug(lastMsg.seedlistresponse().ipv4peers().at(0)); //TODO usunac bo test
-			// TODO: zrobic strukture Ips z tych otrzymanych adresow
-		}
-	}
-	return Ips();
-}
 
 uint64_t SSocket::sendNewTorrentRequest(Torrent torrent) {
 	TcpMessage t;
 	t.set_code(TcpCode::CS_NEW_REQUEST);
-	NewRequest n;
-	TorrentMessage msg = torrent.toMsg();
-	n.set_allocated_torrentmsg(&msg);
-	t.set_allocated_newrequest(&n);
+	auto n = new NewRequest;
+	auto msg = torrent.toMsg();
+	n->set_allocated_torrentmsg(msg);
+	t.set_allocated_newrequest(n);
 	send(&t);
 
 	if(state == SENT) {
@@ -51,6 +35,24 @@ uint64_t SSocket::sendNewTorrentRequest(Torrent torrent) {
 		}
 	}
 	return 0;
+}
+
+Ips SSocket::sendSeedlistRequest(uint64_t hashedTorrent) {
+	TcpMessage t;
+	t.set_code(TcpCode::CS_SEEDLIST_REQUEST);
+	auto n = new SeedlistRequest;
+	n->set_hashedtorrent(hashedTorrent);
+	t.set_allocated_seedlistrequest(n);
+	send(&t);
+
+	if(state == SENT) {
+		receive();
+		if(state == RECVD && lastMsg.code()==CS_SEEDLIST_RESPONSE) {
+			syslogger->debug(lastMsg.seedlistresponse().ipv4peers().at(0)); //TODO usunac bo test
+			// TODO: zrobic strukture Ips z tych otrzymanych adresow
+		}
+	}
+	return Ips();
 }
 
 SSocket::SSocket(std::string trackerIp, uint trackerPort) : BaseSocket(trackerIp, trackerPort) {

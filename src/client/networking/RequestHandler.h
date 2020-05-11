@@ -7,6 +7,7 @@
 #include "sharedUtils.h"
 #include "CSocket.h"
 
+//TODO: coś to ma robić, jak na razie bezuzyteczne
 class RequestHandler {
 	intptr_t acceptorFd;
 	struct sockaddr_in addr;

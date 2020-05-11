@@ -17,7 +17,7 @@ public:
 	Torrent(uint32_t size, std::string fileName);
 	Torrent(uint64_t hashed, uint32_t size, std::string fileName);
 	explicit Torrent(const TorrentMessage &msg);
-	TorrentMessage toMsg();
+	TorrentMessage* toMsg();
 
 	void genDefaultHash();
 	void genSaltedHash(uint32_t salt);
