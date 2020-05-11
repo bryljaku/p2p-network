@@ -25,6 +25,7 @@ enum FileCode {
     F_NO_FILE = 2;
     F_FRAG_MISSING = 3;
     F_FRAG_COMPLETE = 4;
+    F_FINE = 5;
 }
 
 message TorrentMessage {
