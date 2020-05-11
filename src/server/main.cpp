@@ -66,11 +66,11 @@ void * trackerMainThread(void * arg) {
     return NULL;
 }
 
-int main(int arg, char *argv[]) {
+int main(int argc, char *argv[]) {
 	initLogger("p2p-server");
 	int port = SERVER_DEFAULT_PORT;
 	for(;;) {
-		switch(getopt(arg, argv, "p:")) {
+		switch(getopt(argc, argv, "p:")) {
 			case 'p': {
 				int potentialPort = (int) strtol(optarg, nullptr, 10);
 				if(potentialPort<1024 || potentialPort>65535) {
