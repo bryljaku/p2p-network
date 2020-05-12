@@ -33,7 +33,6 @@ public:
     int getSize();
 
     uint8_t* getDataBegin();
-    SegmentId getSegmentIdToDownload();
 
     void addPeer(PeerInfo peer);
     Id getSegmentIdToDownload();

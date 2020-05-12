@@ -41,7 +41,7 @@ void FileManager::storeFile(std::shared_ptr<File> file) {
 	writeUnlock(fileName);
 }
 
-void FileManager::storeSegmentToFile(const Filename fileName, const SegmentId segmentId, uint8_t* segmentData, uint32_t fileSize) {
+void FileManager::storeSegmentToFile(const Filename fileName, const Id segmentId, uint8_t* segmentData, uint32_t fileSize) {
 	writeLock(fileName);
 
 	// if it's the first added segment (file doesn't exist locally yet) => create a file of given size
@@ -92,7 +92,7 @@ void FileManager::addFile(Id id, Filename name, int size, std::string path) {
 	files.push_back(File(id, name, size, path));
 }
 
-uint8_t* FileManager::getSegment(const Filename fileName, SegmentId segment, const std::size_t segmentSize) {
+uint8_t* FileManager::getSegment(const Filename fileName, Id segmentId, const std::size_t segmentSize) {
 	if (segmentSize > DEFAULTSEGMENTSIZE) {
 		//log error - requested size too big
 		return nullptr;
@@ -113,8 +113,8 @@ uint8_t* FileManager::getSegment(const Filename fileName, SegmentId segment, con
 		return nullptr;
 	}
 
-	of->stream.seekg(segment * DEFAULTSEGMENTSIZE);
-	if (of->stream.tellg() != segment * DEFAULTSEGMENTSIZE) {
+	of->stream.seekg(segmentId * DEFAULTSEGMENTSIZE);
+	if (of->stream.tellg() != segmentId * DEFAULTSEGMENTSIZE) {
 		//log setting position error
 		return nullptr;
 	}

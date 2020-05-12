@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
 
 	if(doTest) {
 		Database database;
-		std::shared_ptr<File> file(std::make_shared<File>(0, 10, "./path"));
+		std::shared_ptr<File> file(std::make_shared<File>(0, "test", 10, "./path"));
 		file->addPeer(PeerInfo(1, "127.0.0.1", "", "9999"));
 		file->addPeer(PeerInfo(2, "127.0.0.1", "", "9992"));
 		file->addPeer(PeerInfo(3, "127.0.0.1", "", "9993"));

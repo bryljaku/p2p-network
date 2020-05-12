@@ -35,8 +35,8 @@ public:
 	~FileManager();
 
 	void storeFile(std::shared_ptr<File> file); //stores COMPLETE file
-	void storeSegmentToFile(const Filename fileName, const SegmentId segmentId, uint8_t* segmentData, uint32_t fileSize);
-	uint8_t* getSegment(const Filename fileName, const SegmentId segment, const std::size_t segmentSize);
+	void storeSegmentToFile(const Filename fileName, const Id segmentId, uint8_t* segmentData, uint32_t fileSize);
+	uint8_t* getSegment(const Filename fileName, const Id segmentId, const std::size_t segmentSize);
 	void addFile(Id id, Filename name, int size, std::string path);
 	bool fileExists(const Filename fileName);
 	void createLocalFile(Filename fileName, uint32_t fileSize); //create BINARY file of given name and size
