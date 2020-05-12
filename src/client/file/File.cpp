@@ -22,15 +22,17 @@ SegmentId File::getSegmentIdToDownload() {
     return 0;
 }
 
-File::File(Id id, int size, std::string path) {
+File::File(Id id, Filename name, int size, std::string path) {
     this->size = size;
     this->path = path;
     this->id = id;
+    this->name = name;
 
     generateSegments();
     numOfSegments = segments.size();
     completeSegmentsBool = std::vector<bool>(this->numOfSegments, false);
-    this->dataBegin = nullptr; // todo - it should be some dataptr to file on disk
+    //this->dataBegin = segments[0].getDataPtr(); // todo?
+    this->dataBegin = nullptr;
     this->dataEnd = this->dataBegin + size;
 //    spdlog::info("Created file with id {}", id);
     

@@ -19,8 +19,10 @@ class FileManager
     	std::ifstream stream;
   	};
 
+  	std::vector<File> files; // client's local files
+
   	std::vector<OpenedFile *> readLockedFiles; 
-  	std::vector<Filename> writeLockedFiles; //names of files locked for writing
+  	std::vector<Filename> writeLockedFiles;
 
   	std::mutex readLockMutex;
   	std::mutex writeLockMutex;
@@ -33,13 +35,17 @@ public:
 	~FileManager();
 
 	void storeFile(std::shared_ptr<File> file); //stores COMPLETE file
-	uint8_t* getSegment(const Filename fileName, SegmentId segment, const std::size_t segmentSize);
+	void storeSegmentToFile(const Filename fileName, const SegmentId segmentId, uint8_t* segmentData, uint32_t fileSize);
+	uint8_t* getSegment(const Filename fileName, const SegmentId segment, const std::size_t segmentSize);
+	void addFile(Id id, Filename name, int size, std::string path);
+	bool fileExists(const Filename fileName);
+	void createLocalFile(Filename fileName, uint32_t fileSize); //create BINARY file of given name and size
 
 	bool readLock(const Filename fileName);
   	void readUnlock(const Filename fileName);
 
 private:
-	//these are used only inside storeFile method:
+	//these are used only inside storeFile and storeSegmentToFile methods:
   	void writeLock(const Filename fileName);
   	void writeUnlock(const Filename fileName);
 };

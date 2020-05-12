@@ -21,7 +21,7 @@ class File {
     uint8_t *dataEnd;
     
 public:
-    File(Id id, int size, std::string path);
+    File(Id id, Filename name, int size, std::string path);
     bool isComplete();
     Segment getSegment(int id);
     Id getId();

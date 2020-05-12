@@ -25,7 +25,7 @@ void FileManager::storeFile(std::shared_ptr<File> file) {
 		return;
 	}
 
-	//TODO - dataBegin is nullptr !!!!!!!!
+	//TODO?
 	char* fileContents = reinterpret_cast<char *>(file->getDataBegin());
 
 	fileStream.seekp(0);
@@ -39,6 +39,57 @@ void FileManager::storeFile(std::shared_ptr<File> file) {
 
 	fileStream.close();
 	writeUnlock(fileName);
+}
+
+void FileManager::storeSegmentToFile(const Filename fileName, const SegmentId segmentId, uint8_t* segmentData, uint32_t fileSize) {
+	writeLock(fileName);
+
+	// if it's the first added segment (file doesn't exist locally yet) => create a file of given size
+	if (!fileExists(fileName)) {
+		createLocalFile(fileName, fileSize);
+		//files vector should be updated!!! TODO
+	}
+	std::fstream fileStream(fileName, std::ios_base::binary | std::ios_base::out | std::ios_base::in); // "in" mode needed to prevent file contents deletion
+
+	if (fileStream.fail()) {
+		//log error - couldn't open the file
+		return;
+	}
+
+	char* segmentContents = reinterpret_cast<char *>(segmentData);
+
+	fileStream.seekp(segmentId * DEFAULTSEGMENTSIZE);
+	fileStream.write(segmentContents, DEFAULTSEGMENTSIZE);
+
+	if(!fileStream) {
+		//TODO log error while storing file
+	} else {
+		//TODO log success
+	}
+
+	fileStream.close();
+	writeUnlock(fileName);
+}
+
+bool FileManager::fileExists(const Filename fileName) {
+	for (File f : files) {
+		if (f.getName() == fileName) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void createLocalFile(Filename fileName, uint32_t fileSize) {
+	std::ofstream out(fileName, std::ios::binary);
+
+	char byteValue = '\0'; // or whatever
+
+	std::fill_n(std::ostreambuf_iterator<char>(out), fileSize, byteValue);
+}
+
+void FileManager::addFile(Id id, Filename name, int size, std::string path) {
+	files.push_back(File(id, name, size, path));
 }
 
 uint8_t* FileManager::getSegment(const Filename fileName, SegmentId segment, const std::size_t segmentSize) {
