@@ -20,7 +20,7 @@ std::thread DownloadWorker::startWorker() {
 
 void DownloadWorker::work() {
     std::string peerIp = peer->getIpV4Address();
-    auto peerPort = std::stoi(peer->getPort());
+    auto peerPort = peer->getPort();
     CSocket peerSocket(peerIp, peerPort);
     auto state = peerSocket.start();
     if (state != OPEN) {

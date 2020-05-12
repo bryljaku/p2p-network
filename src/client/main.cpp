@@ -96,13 +96,13 @@ int main(int argc, char *argv[]) {
 
 	if(doTest) {
 		Database database = Database();
-		File file  = File(1, 10, "./path");
-//		file.addPeer(PeerInfo(1, "127.0.0.3", "", "9999"));// gdy są peers to coś throwuje, obstawiam że to coś z jakimiś shared_ptr 
-//		file.addPeer(PeerInfo(2, "127.0.0.2", "", "9992"));
-//		file.addPeer(PeerInfo(3, "127.0.0.4", "", "9993"));
-        database.addFile(File(1, 10, "./path"));
+		File file(File(1, 10, "./path"));
+		file.addPeer(PeerInfo(1, "127.0.0.3", "", 9999));// gdy są peers to coś throwuje, obstawiam że to coś z jakimiś shared_ptr
+		file.addPeer(PeerInfo(2, "127.0.0.2", "", 9992));
+		file.addPeer(PeerInfo(3, "127.0.0.4", "", 9993));
+        database.addFile(file);
         Torrent testTorrent(123, "test.txt");
-        DownloadManager manager(database, file, testTorrent);
+        DownloadManager manager(database, database.getFile(1), testTorrent);
         auto mngThread = manager.start_manager();
         mngThread.join();
         SSocket testTrackerSocket("127.0.0.1", PORT);

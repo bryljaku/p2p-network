@@ -16,7 +16,7 @@ class DownloadWorker {
     Torrent torrent;
     bool finished;
 public:
-    DownloadWorker(Database database1, std::shared_ptr<File> file1, Torrent torrent1, std::shared_ptr<PeerInfo> peer1):database(database1), file(std::move(file1)), torrent(torrent1), peer(peer1) {
+    DownloadWorker(Database database1, std::shared_ptr<File> file1, Torrent torrent1, std::shared_ptr<PeerInfo> peer1):database(database1), file(std::move(file1)), torrent(std::move(torrent1)), peer(std::move(peer1)) {
         syslogger->info("DownloadW for file {} created", file->getId());}
     
     ~DownloadWorker();

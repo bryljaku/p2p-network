@@ -19,7 +19,7 @@ class DownloadManager {
     std::vector<std::thread> worker_threads;
     Torrent torrent;
 public:
-    DownloadManager(Database database1, File file1, Torrent torrent1):database(database1), file(std::make_shared<File>(file1)), torrent(torrent1) {
+    DownloadManager(Database database1, std::shared_ptr<File> file1, Torrent torrent1):database(std::move(database1)), file(std::move(file1)), torrent(std::move(torrent1)) {
         syslogger->info("DownloadManager for file {} created", file->getId());
     };
     
