@@ -12,6 +12,7 @@ class CSocket : public BaseSocket {
 public:
 	ListResponse requestFragmentsList(const Torrent& torrent);
 	FragmentResponse requestFragment(Torrent torrent, uint32_t fragNums);
+	CSocket(std::string ip, uint port);
 };
 
 

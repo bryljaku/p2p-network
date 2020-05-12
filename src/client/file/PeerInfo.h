@@ -26,6 +26,9 @@ public:
     IpV6Address getIpV6Address() {
         return ipV6Address;
     }
+    Port getPort() {
+        return port;
+    }
 };
 
 

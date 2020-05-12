@@ -1,5 +1,7 @@
 #include "CSocket.h"
 
+#include <utility>
+
 ListResponse CSocket::requestFragmentsList(const Torrent& torrent) {
 	TcpMessage t;
 	t.set_code(CC_LIST_REQUEST);
@@ -48,3 +50,8 @@ FragmentResponse CSocket::requestFragment(Torrent torrent, uint32_t fragNum) {
 	err.set_filecode(F_ERROR);
 	return err;
 }
+
+CSocket::CSocket(std::string ip, uint port) : BaseSocket(std::move(ip), port) {
+
+}
+

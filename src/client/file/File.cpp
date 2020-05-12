@@ -1,6 +1,7 @@
 #include "File.h"
 
 #include <utility>
+#include <src/shared/sharedUtils.h>
 //#include <spdlog/spdlog.h>
 
 bool File::isComplete() {
@@ -18,21 +19,18 @@ int File::getSize() {
     return size;
 }
 
-Id File::getSegmentIdToDownload() {
-    return 0;
-}
 
 File::File(Id id, int size, std::string path) {
     this->size = size;
-    this->path = path;
+    this->path = std::move(path);
     this->id = id;
-
+    peers = std::vector<std::shared_ptr<PeerInfo>>();
     generateSegments();
     numOfSegments = segments.size();
     completeSegmentsBool = std::vector<bool>(this->numOfSegments, false);
     this->dataBegin = nullptr; // todo - it should be some dataptr to file on disk
-    this->dataEnd = this->dataBegin + size;
-//    spdlog::info("Created file with id {}", id);
+//    this->dataEnd = this->dataBegin + size;
+    syslogger->info("Created file with id {}", id);
     
 }
 
@@ -41,12 +39,15 @@ void File::generateSegments() {
         this->numOfSegments = size / DEFAULTSEGMENTSIZE;
     else
         this->numOfSegments = size / DEFAULTSEGMENTSIZE + 1;
-
+    
     for (int i = 0; i < numOfSegments; i++)
         this->segments.emplace_back(Segment(i, this->dataBegin + DEFAULTSEGMENTSIZE * i));
-        //todo
+//    std::vector<std::mutex *> mut(numOfSegments);
+//    my_mutexes = mut;
+//    for (int i = 0; i < numOfSegments; i++)
+//        my_mutexes[i] = new std::mutex();
     
-//    spdlog::info("Generated {} segments for file with id {}", numOfSegments, id);
+    syslogger->info("Generated {} segments for file with id {}", numOfSegments, id);
 }
 
 std::vector<std::shared_ptr<PeerInfo>> File::getPeers() {
@@ -66,5 +67,16 @@ std::string File::getPath() {
 }
 
 void File::addPeer(PeerInfo peer) {
-    peers.push_back(std::make_shared<PeerInfo>(peer));
+    peers.emplace_back(std::make_shared<PeerInfo>(peer));
+    syslogger->info("File {} added peer {}",id, peer.getId());
+}
+
+//todo add concurrency
+void File::setSegmentState(int segmentId, SegmentState newState) {
+    segments[segmentId].setSegmentState(newState);
+    syslogger->info("File {} set segment {} state to {}",id,  segmentId, newState);
+}
+
+SegmentState File::getSegmentState(Id segmentId) {
+    return segments[segmentId].getSegmentState();
 }

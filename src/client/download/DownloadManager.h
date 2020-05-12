@@ -6,25 +6,28 @@
 #include <file/File.h>
 
 #include <utility>
+#include <src/shared/Torrent.h>
 #include "DownloadWorker.h"
 
 // manages workers for one resource
 class DownloadManager {
 //FileManager fileManager;
-
+    
     Database database;
     std::shared_ptr<File> file;
-    std::vector<std::shared_ptr<DownloadWorker>> workers;
+    std::vector<DownloadWorker> workers;
     std::vector<std::thread> worker_threads;
+    Torrent torrent;
 public:
-    DownloadManager(Database database, std::shared_ptr<File> file):database(database), file(std::move(file)) {};
+    DownloadManager(Database database1, File file1, Torrent torrent1):database(database1), file(std::make_shared<File>(file1)), torrent(torrent1) {
+        syslogger->info("DownloadManager for file {} created", file->getId());
+    };
     
     ~DownloadManager();
     std::thread start_manager();
     void createWorkers();
     void manageWorkers();
     void startWorkers();
-    void closeWorkers();
     void joinWorkers();
     
     void updatePeers();
