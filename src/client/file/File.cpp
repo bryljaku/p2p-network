@@ -57,10 +57,6 @@ Id File::getId() {
     return id;
 }
 
-Filename File::getName() {
-    return name;
-}
-
 int File::getNumOfSegments() {
     return numOfSegments;
 }

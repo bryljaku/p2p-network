@@ -14,7 +14,8 @@ FileManager::~FileManager() {
 }
 
 void FileManager::storeFile(std::shared_ptr<File> file) {
-	Filename fileName = file->getName();
+	//Filename fileName = file->getName();
+	Filename fileName = "dummy";
 
 	writeLock(fileName);
 

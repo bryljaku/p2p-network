@@ -13,13 +13,13 @@
 class DownloadManager {
 //FileManager fileManager;
     
-    Database database;
+    std::shared_ptr<Database> database;
     std::shared_ptr<File> file;
     std::vector<DownloadWorker> workers;
     std::vector<std::thread> worker_threads;
     Torrent torrent;
 public:
-    DownloadManager(Database database1, std::shared_ptr<File> file1, Torrent torrent1):database(std::move(database1)), file(std::move(file1)), torrent(std::move(torrent1)) {
+    DownloadManager(std::shared_ptr<Database> database1, std::shared_ptr<File> file1, Torrent torrent1):database(std::move(database1)), file(std::move(file1)), torrent(std::move(torrent1)) {
         syslogger->info("DownloadManager for file {} created", file->getId());
     };
     
