@@ -13,7 +13,7 @@
 class DownloadManager {
 //FileManager fileManager;
     
-    std::shared_ptr<Database> database;
+    Database database;
     std::shared_ptr<File> file;
     std::vector<DownloadWorker> workers;
     std::vector<std::thread> worker_threads;

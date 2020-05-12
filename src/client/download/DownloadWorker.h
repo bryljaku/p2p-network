@@ -10,7 +10,7 @@
 #include <networking/CSocket.h>
 
 class DownloadWorker {
-    std::shared_ptr<Database> database;
+    Database database;
     std::shared_ptr<File> file;
     std::shared_ptr<PeerInfo> peer;
     Torrent torrent;

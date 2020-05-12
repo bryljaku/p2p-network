@@ -82,7 +82,7 @@ void FileManager::storeSegmentToFile(const Filename fileName, const Id segmentId
 // 	return false;
 // }
 
-void FileManager::createLocalFileAndAddToDB(Torrent torrent, Id fileId, std::string path) {
+void FileManager::createLocalFileAndAddToDB(Torrent& torrent, Id fileId, std::string path) {
 	std::ofstream fileCreator(torrent.fileName, std::ios::binary);
 
 	char byteValue = '\0';
@@ -90,7 +90,7 @@ void FileManager::createLocalFileAndAddToDB(Torrent torrent, Id fileId, std::str
 
 	fileCreator.close();
 
-	database->addFile(File(fileId, torrent.fileName, torrent.size, path));
+	database->addFile(File(fileId, torrent.size, torrent, path));
 }
 
 // void FileManager::addFile(Id id, Filename name, int size, std::string path) {

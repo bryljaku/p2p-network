@@ -41,7 +41,7 @@ public:
 	uint8_t* getSegment(const Filename fileName, const Id segmentId, const std::size_t segmentSize);
 	//void addFile(Id id, Filename name, int size, std::string path);
 	//bool fileExists(const Filename fileName);
-	void createLocalFileAndAddToDB(Torrent torrent, Id fileId, std::string path = "./"); //create BINARY file from given Torrent
+	void createLocalFileAndAddToDB(Torrent& torrent, Id fileId, std::string path = "./"); //create BINARY file from given Torrent
 
 	bool readLock(const Filename fileName);
   	void readUnlock(const Filename fileName);
