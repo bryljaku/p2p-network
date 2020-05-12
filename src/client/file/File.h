@@ -8,7 +8,7 @@
 #include "../utils/GeneralTypes.h"
 #include "PeerInfo.h"
 #include <mutex>
-
+//created by Jakub
 
 class File {
     Id id = -1;
@@ -19,8 +19,8 @@ class File {
     std::vector<bool> completeSegmentsBool;
     std::vector<std::shared_ptr<PeerInfo>> peers;
     uint8_t *dataBegin;
-//    uint8_t *dataEnd;
-//    std::vector<std::mutex *> my_mutexes;
+    uint8_t *dataEnd;
+    std::vector<std::mutex *> my_mutexes;
 public:
     File(Id id, int size, std::string path);
     bool isComplete();

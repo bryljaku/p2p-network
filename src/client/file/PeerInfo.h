@@ -1,6 +1,6 @@
 #ifndef P2P_NETWORK_PEERINFO_H
 #define P2P_NETWORK_PEERINFO_H
-
+//created by Jakub
 
 #include <vector>
 #include "../utils/GeneralTypes.h"

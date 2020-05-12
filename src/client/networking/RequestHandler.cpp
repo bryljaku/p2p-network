@@ -1,5 +1,5 @@
+//created by Piotr
 #include "RequestHandler.h"
-
 #define MAX_ACCEPT_QUEUE 100
 
 int RequestHandler::openListener(std::string ip, uint port) {

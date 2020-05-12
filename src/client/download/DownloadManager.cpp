@@ -1,6 +1,6 @@
 #include <sharedUtils.h>
 #include "DownloadManager.h"
-
+// created by Jakub
 std::thread DownloadManager::start_manager() {
     return std::thread([&] {try {
         createWorkers();

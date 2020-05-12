@@ -1,6 +1,6 @@
 #ifndef P2P_NETWORK_GENERALTYPES_H
 #define P2P_NETWORK_GENERALTYPES_H
-
+// created by Jakub
 #include <string>
 
 #define Id int
