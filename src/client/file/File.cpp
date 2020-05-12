@@ -4,8 +4,8 @@
 //#include <spdlog/spdlog.h>
 
 bool File::isComplete() {
-    for (auto i: completeSegmentsBool)
-        if (!i)
+    for (auto s: segments)
+        if (COMPLETE != s.getSegmentState())
             return false;
     return true;
 }
@@ -18,7 +18,7 @@ int File::getSize() {
     return size;
 }
 
-SegmentId File::getSegmentIdToDownload() {
+Id File::getSegmentIdToDownload() {
     return 0;
 }
 
@@ -51,7 +51,7 @@ void File::generateSegments() {
 //    spdlog::info("Generated {} segments for file with id {}", numOfSegments, id);
 }
 
-std::vector<PeerInfo> File::getPeers() {
+std::vector<std::shared_ptr<PeerInfo>> File::getPeers() {
     return peers;
 }
 
@@ -73,4 +73,8 @@ std::string File::getPath() {
 
 uint8_t* File::getDataBegin() {
     return dataBegin;
+}
+
+void File::addPeer(PeerInfo peer) {
+    peers.push_back(std::make_shared<PeerInfo>(peer));
 }

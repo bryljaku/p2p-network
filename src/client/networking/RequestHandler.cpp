@@ -45,7 +45,3 @@ int RequestHandler::openListener(std::string ip, uint port) {
 	}
 	return 0;
 }
-
-void RequestHandler::addClient(intptr_t clientFd) {
-	this->clients.emplace_back(clientFd);
-}

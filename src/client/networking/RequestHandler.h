@@ -7,13 +7,14 @@
 #include "sharedUtils.h"
 #include "CSocket.h"
 
+//TODO: coś to ma robić, jak na razie bezuzyteczne
 class RequestHandler {
 	intptr_t acceptorFd;
 	struct sockaddr_in addr;
 	std::vector<CSocket> clients;
 
 private:
-	void addClient(intptr_t clientFd);
+	//void addClient(intptr_t clientFd);
 public:
 	int openListener(std::string ip, uint port);	// returns -1 if failed, 0 otherwise
 

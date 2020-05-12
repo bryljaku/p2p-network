@@ -26,6 +26,7 @@ void respond(intptr_t connFd, TcpMessage *msg) {
 		auto t = new SeedlistResponse;			// delete(t) not needed, Protobuf does it when freeing response
 		t->add_ipv4peers("TEST");
 		response.set_allocated_seedlistresponse(t);
+		syslogger->debug(response.SerializeAsString());
 		sendTcpMsg(connFd, &response);
 	} else if (code == CS_NEW_REQUEST) {
 		Torrent newTorrent(msg->newrequest().torrentmsg());	//TODO: jeszcze musimy dodac do bazy danych
@@ -66,11 +67,11 @@ void * trackerMainThread(void * arg) {
     return NULL;
 }
 
-int main(int arg, char *argv[]) {
+int main(int argc, char *argv[]) {
 	initLogger("p2p-server");
 	int port = SERVER_DEFAULT_PORT;
 	for(;;) {
-		switch(getopt(arg, argv, "p:")) {
+		switch(getopt(argc, argv, "p:")) {
 			case 'p': {
 				int potentialPort = (int) strtol(optarg, nullptr, 10);
 				if(potentialPort<1024 || potentialPort>65535) {

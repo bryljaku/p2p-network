@@ -29,11 +29,11 @@ Torrent::Torrent(const TorrentMessage &msg) {
 	fileName = msg.filename();
 }
 
-TorrentMessage Torrent::toMsg() {
-	TorrentMessage n;
-	n.set_hashed(hashed);
-	n.set_size(size);
-	n.set_filename(fileName);
+TorrentMessage* Torrent::toMsg() {
+	auto n = new TorrentMessage;
+	n->set_hashed(hashed);
+	n->set_size(size);
+	n->set_filename(fileName);
 	return n;
 }
 

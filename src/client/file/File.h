@@ -3,6 +3,7 @@
 
 
 #include <vector>
+#include <memory>
 #include "Segment.h"
 #include "../utils/GeneralTypes.h"
 #include "PeerInfo.h"
@@ -16,7 +17,7 @@ class File {
     int size;
     std::string path;
     std::vector<bool> completeSegmentsBool;
-    std::vector<PeerInfo> peers;
+    std::vector<std::shared_ptr<PeerInfo>> peers;
     uint8_t *dataBegin;
     uint8_t *dataEnd;
     
@@ -27,16 +28,18 @@ public:
     Id getId();
     Filename getName();
     std::string getPath();
-    std::vector<PeerInfo> getPeers();
+    std::vector<std::shared_ptr<PeerInfo>> getPeers();
     int getNumOfSegments();
     int getSize();
+
     uint8_t* getDataBegin();
     SegmentId getSegmentIdToDownload();
 
+    void addPeer(PeerInfo peer);
+    Id getSegmentIdToDownload();
 
 private:
     void generateSegments();
-    
 };
 
 

@@ -2,15 +2,16 @@
 #define P2P_NETWORK_CSOCKET_H
 
 #include <sharedUtils.h>
+#include <Torrent.h>
+#include "BaseSocket.h"
 
-// client - client communication;
-class CSocket {
-	intptr_t sockFd;
-	eSocketState state;
+#define DEFAULT_RECV_TIMEOUT 5	//TODO: zmienić na wiecej
 
+// client - client communication
+class CSocket : public BaseSocket {
 public:
-	CSocket(intptr_t sockFd);
-	//TODO: zrobic wszystko
+	ListResponse requestFragmentsList(const Torrent& torrent);
+	FragmentResponse requestFragment(Torrent torrent, uint32_t fragNums);
 };
 
 
