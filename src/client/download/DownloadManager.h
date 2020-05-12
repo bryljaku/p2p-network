@@ -1,6 +1,6 @@
 #ifndef P2P_NETWORK_DOWNLOADMANAGER_H
 #define P2P_NETWORK_DOWNLOADMANAGER_H
-
+//created by Jakub
 #include <bits/shared_ptr.h>
 #include <database/Database.h>
 #include <file/File.h>
@@ -18,7 +18,7 @@ class DownloadManager {
     std::vector<DownloadWorker> workers;
     std::vector<std::thread> worker_threads;
 public:
-    DownloadManager(Database database1, File file1):database(database1), file(std::make_shared<File>(file1)) {
+    DownloadManager(Database database1, std::shared_ptr<File> file1):database(std::move(database1)), file(std::move(file1)) {
         syslogger->info("DownloadManager for file {} created", file->getId());
     };
     

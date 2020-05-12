@@ -118,9 +118,9 @@ int main(int argc, char *argv[]) {
 	}
 	if(doTest) {
 		Database database = Database();
-//		file.addPeer(PeerInfo(1, "127.0.0.3", "", "9999"));// gdy są peers to coś throwuje, obstawiam że to coś z jakimiś shared_ptr 
-//		file.addPeer(PeerInfo(2, "127.0.0.2", "", "9992"));
-//		file.addPeer(PeerInfo(3, "127.0.0.4", "", "9993"));
+		file.addPeer(PeerInfo(1, "127.0.0.3", "", "9999"));// gdy są peers to coś throwuje, obstawiam że to coś z jakimiś shared_ptr 
+		file.addPeer(PeerInfo(2, "127.0.0.2", "", "9992"));
+		file.addPeer(PeerInfo(3, "127.0.0.4", "", "9993"));
 		Torrent testTorrent(1337,10, "./path");
 		File file  = File(1, 10, testTorrent, "./path");
         database.addFile(file);

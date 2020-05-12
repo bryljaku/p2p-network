@@ -1,6 +1,6 @@
 #ifndef P2P_NETWORK_CSOCKET_H
 #define P2P_NETWORK_CSOCKET_H
-
+// created by Piotr
 #include <sharedUtils.h>
 #include <Torrent.h>
 #include "BaseSocket.h"

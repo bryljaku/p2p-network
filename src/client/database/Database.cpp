@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <spdlog/spdlog.h>
 #include "Database.h"
-
+//created by Jakub
 void Database::removeFile(std::string path) {
     auto oldSize = files.size();
     std::vector<std::shared_ptr<File>>::iterator new_end;

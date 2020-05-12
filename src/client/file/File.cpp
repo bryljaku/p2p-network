@@ -1,8 +1,7 @@
+//created by Jakub
 #include "File.h"
-
 #include <utility>
 #include <sharedUtils.h>
-//#include <spdlog/spdlog.h>
 
 bool File::isComplete() {
     for (auto s: segments)

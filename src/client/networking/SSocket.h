@@ -1,3 +1,4 @@
+//created by Piotr
 #ifndef P2P_NETWORK_SSOCKET_H
 #define P2P_NETWORK_SSOCKET_H
 #include <sys/socket.h>

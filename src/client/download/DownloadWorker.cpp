@@ -1,5 +1,5 @@
 #include <sharedUtils.h>
-
+//created by Jakub
 #include <utility>
 #include "DownloadWorker.h"
 #include "networking/CSocket.h"
@@ -20,11 +20,12 @@ std::thread DownloadWorker::startWorker() {
 
 void DownloadWorker::work() {
     std::string peerIp = peer->getIpV4Address();
-    auto peerPort = std::stoi(peer->getPort());
+    auto peerPort = peer->getPort();
     CSocket peerSocket(peerIp, peerPort);
     auto state = peerSocket.start();
     if (state != OPEN) {
         syslogger->warn("DownloadWorker problem occured while connecting to {}:{}", peerIp, peerPort);
+        finished = true;
         return;
     }
     ListResponse peerFragments = peerSocket.requestFragmentsList(torrent);
@@ -45,6 +46,7 @@ void DownloadWorker::work() {
         }
     }
     syslogger->info("downloaded all fragments from {}", peerIp);
+    finished = true;
 }
 
 std::shared_ptr<PeerInfo> DownloadWorker::getPeer() {

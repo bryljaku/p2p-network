@@ -1,6 +1,6 @@
 #include <sharedUtils.h>
 #include "DownloadManager.h"
-
+// created by Jakub
 std::thread DownloadManager::start_manager() {
     return std::thread([&] {try {
         createWorkers();
@@ -47,7 +47,8 @@ void DownloadManager::manageWorkers() {
         }
         updatePeers();
         // todo - check if there are any problems with workers
-        sleep(60);
+        syslogger->info("Manager check");
+        sleep(5);
     }
 }
 void DownloadManager::updatePeers() {
@@ -70,7 +71,7 @@ void DownloadManager::startWorkerThreadForPeer(const std::shared_ptr<PeerInfo>& 
     
 }
 bool DownloadManager::checkIfWorkersWork() {
-    for (auto w: workers)
+    for (auto &w: workers)
         if (!w.isDone())
             return true;
     return false;

@@ -1,6 +1,6 @@
 #ifndef P2P_NETWORK_DATABASE_H
 #define P2P_NETWORK_DATABASE_H
-
+//created by Jakub
 
 #include <vector>
 #include "../file/File.h"

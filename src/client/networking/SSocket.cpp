@@ -1,3 +1,4 @@
+// created by Piotr
 #include "SSocket.h"
 
 TcpCode SSocket::sendOk() {
