@@ -10,7 +10,9 @@ CMakeFiles
 *.pb.*
 # Prerequisites
 *.d
-
+src/client/client
+src/server/server
+src/shared/shared
 # Compiled Object files
 *.slo
 *.lo

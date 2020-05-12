@@ -7,20 +7,20 @@
 #include "Segment.h"
 #include "../utils/GeneralTypes.h"
 #include "PeerInfo.h"
-
+#include <mutex>
+//created by Jakub
 
 class File {
-    Id id;
-    Filename name;
+    Id id = -1;
     std::vector<Segment> segments;
-    int numOfSegments;
-    int size;
-    std::string path;
+    int numOfSegments = -1;
+    int size = -1;
+    std::string path = "";
     std::vector<bool> completeSegmentsBool;
     std::vector<std::shared_ptr<PeerInfo>> peers;
     uint8_t *dataBegin;
     uint8_t *dataEnd;
-    
+    std::vector<std::mutex *> my_mutexes;
 public:
     File(Id id, Filename name, int size, std::string path);
     bool isComplete();
@@ -35,7 +35,9 @@ public:
     uint8_t* getDataBegin();
 
     void addPeer(PeerInfo peer);
-    Id getSegmentIdToDownload();
+
+    SegmentState getSegmentState(Id segmentId);
+    void setSegmentState(Id segmentId, SegmentState newState);
 
 private:
     void generateSegments();

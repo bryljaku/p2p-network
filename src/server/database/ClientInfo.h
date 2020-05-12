@@ -1,5 +1,6 @@
 #ifndef P2P_NETWORK_CLIENTINFO_H
 #define P2P_NETWORK_CLIENTINFO_H
+//created by Jakub
 #include <utility>
 #include <vector>
 #include <string>

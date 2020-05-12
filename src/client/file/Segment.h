@@ -1,6 +1,6 @@
 #ifndef P2P_NETWORK_SEGMENT_H
 #define P2P_NETWORK_SEGMENT_H
-
+// created by Jakub
 #include <vector>
 #include "../utils/GeneralTypes.h"
 enum SegmentState {
@@ -15,7 +15,7 @@ class Segment {
         ~Segment() = default;
         Id getId() const;
         uint8_t *getDataPtr() const;
-        void setSegmentState(SegmentState state);
+        void setSegmentState(SegmentState _state);
         SegmentState getSegmentState();
     private:
         SegmentState state;

@@ -1,4 +1,4 @@
-syntax = "proto3";
+syntax = "proto3"; // created by Piotr
 
 enum TcpCode {
     CONNERROR = 0;              	// TODO: nie używać tego w przesyłaniu czegokolwiek, bo serializacja się sypie (tylko do użycia wewnątrz klienta/serwera

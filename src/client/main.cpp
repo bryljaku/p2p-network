@@ -95,22 +95,23 @@ int main(int argc, char *argv[]) {
 	}
 
 	if(doTest) {
-		Database database;
-		std::shared_ptr<File> file(std::make_shared<File>(0, "test", 10, "./path"));
-		file->addPeer(PeerInfo(1, "127.0.0.1", "", "9999"));
-		file->addPeer(PeerInfo(2, "127.0.0.1", "", "9992"));
-		file->addPeer(PeerInfo(3, "127.0.0.1", "", "9993"));
-		DownloadManager manager(database, file);
-		auto mngThread = manager.start_manager();
-		mngThread.join();
-		SSocket testTrackerSocket("127.0.0.1", PORT);
-		testTrackerSocket.start();
-		testTrackerSocket.sendOk();
-		testTrackerSocket.sendSeedlistRequest(1);
-		Torrent testTorrent(123, "test.txt");
+
+		Database database = Database();
+		File file(File(1, 10, "./path"));
+		file.addPeer(PeerInfo(1, "127.0.0.3", "", 9999));// gdy są peers to coś throwuje, obstawiam że to coś z jakimiś shared_ptr
+		file.addPeer(PeerInfo(2, "127.0.0.2", "", 9992));
+		file.addPeer(PeerInfo(3, "127.0.0.4", "", 9993));
+        database.addFile(file);
+        Torrent testTorrent(123, "test.txt");
+        DownloadManager manager(database, database.getFile(1), testTorrent);
+        auto mngThread = manager.start_manager();
+        mngThread.join();
+        SSocket testTrackerSocket("127.0.0.1", PORT);
+        testTrackerSocket.start();
+        testTrackerSocket.sendOk();
+        testTrackerSocket.sendSeedlistRequest(1);
 		testTrackerSocket.sendNewTorrentRequest(testTorrent);
 	}
-
 
 	std::string portS  = std::to_string(port);
 	int socketFd = guard(socket(AF_INET, SOCK_STREAM, 0), "Could not create TCP listening socket");
