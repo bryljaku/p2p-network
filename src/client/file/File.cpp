@@ -1,7 +1,7 @@
 #include "File.h"
 
 #include <utility>
-#include <src/shared/sharedUtils.h>
+#include <sharedUtils.h>
 //#include <spdlog/spdlog.h>
 
 bool File::isComplete() {
@@ -19,9 +19,14 @@ int File::getSize() {
     return size;
 }
 
+Torrent& File::getTorrent() {
+	return torrent;
+}
 
-File::File(Id id, int size, std::string path) {
+
+File::File(Id id, int size, Torrent& torrent, std::string path) {
     this->size = size;
+    this->torrent = torrent;
     this->path = std::move(path);
     this->id = id;
     peers = std::vector<std::shared_ptr<PeerInfo>>();

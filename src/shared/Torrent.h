@@ -14,6 +14,7 @@ public:
 	std::string fileName;
 
 	Torrent();
+	Torrent(const Torrent &obj);
 	Torrent(uint32_t size, std::string fileName);
 	Torrent(uint64_t hashed, uint32_t size, std::string fileName);
 	explicit Torrent(const TorrentMessage &msg);

@@ -13,7 +13,7 @@ void Torrent::genSaltedHash(uint32_t salt) {
 Torrent::Torrent() {
 	hashed = 0;
 	size = 0;
-	fileName = nullptr;
+	fileName = "";
 }
 
 Torrent::Torrent(uint32_t size, std::string fileName):size(size),fileName(std::move(fileName)) {
@@ -35,5 +35,11 @@ TorrentMessage* Torrent::toMsg() {
 	n->set_size(size);
 	n->set_filename(fileName);
 	return n;
+}
+
+Torrent::Torrent(const Torrent &obj) {
+	this->hashed = obj.hashed;
+	this->size = obj.size;
+	this->fileName = obj.fileName;
 }
 
