@@ -25,6 +25,7 @@ void DownloadWorker::work() {
     auto state = peerSocket.start();
     if (state != OPEN) {
         syslogger->warn("DownloadWorker problem occured while connecting to {}:{}", peerIp, peerPort);
+        finished = true;
         return;
     }
     ListResponse peerFragments = peerSocket.requestFragmentsList(torrent);
@@ -45,6 +46,7 @@ void DownloadWorker::work() {
         }
     }
     syslogger->info("downloaded all fragments from {}", peerIp);
+    finished = true;
 }
 
 std::shared_ptr<PeerInfo> DownloadWorker::getPeer() {
