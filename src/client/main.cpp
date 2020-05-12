@@ -18,24 +18,47 @@ void respond(intptr_t connFd, TcpMessage *msg) {
 	TcpCode code = msg->code();
 	TcpMessage response;
 
+	//TEST
+
+	Database testdb;
+	Torrent testTorrent(1337,10, "./path");
+	testdb.addFile(File(1, 10, testTorrent, "./path"));
+
+	//END TEST
 	if(code == OK) {
 		response.set_code(OK);
 		sendTcpMsg(connFd, &response);
 	} else if (code == CC_LIST_REQUEST) {
 		response.set_code(CC_LIST_RESPONSE);
 		auto lr = new ListResponse;
+		int totalSegs = 0;
+		for(auto s : testdb.getFiles()) {
+			if (msg->listrequest().hashedtorrent() == s->getTorrent().hashed) {
+				for(int i=0; i<s->getNumOfSegments(); i++) {
+					if(s->getSegmentState(i) == SegmentState::COMPLETE) {
+						lr->set_fragments(totalSegs++, i);
+					}
+				}
+			}
+		}
 		lr->set_filecode(F_FRAG_COMPLETE);		// TODO: complete jak wysylamy liste kompletnych, missing jak listę brakujacych
 		lr->set_hashedtorrent(msg->listrequest().hashedtorrent());
-//		lr.set_fragments(index, numer fragmentu)	// TODO: powstawiac posiadane numery fragmentow
 		response.set_allocated_listresponse(lr);
 		sendTcpMsg(connFd, &response);
 	} else if (code == CC_FRAGMENT_REQUEST) {
 		response.set_code(CC_FRAGMENT_RESPONSE);
 		auto fr = new FragmentResponse;
-		fr->set_filecode(F_FINE);
-		fr->set_fragnum(msg->fragmentrequest().fragnum());
-		fr->set_hashedtorrent(msg->mutable_fragmentrequest()->hashedtorrent());
-//		fr->set_fragment(tutaj bajty)	;			// TODO: wstawic bajty fragmentu
+		fr->set_filecode(F_NO_FILE);
+		for(auto s : testdb.getFiles()) {
+			if(s->getTorrent().hashed == msg->fragmentrequest().hashedtorrent()) {
+				if(s->getSegmentState(msg->fragmentrequest().fragnum()) == SegmentState::COMPLETE) {
+					fr->set_filecode(F_FINE);
+					fr->set_fragnum(msg->fragmentrequest().fragnum());
+					fr->set_hashedtorrent(msg->mutable_fragmentrequest()->hashedtorrent());
+					fr->set_fragment((const char*)s->getSegment(msg->fragmentrequest().fragnum()).getDataPtr());
+				}
+			}
+		}
 		response.set_allocated_fragmentresponse(fr);
 		sendTcpMsg(connFd, &response);
 	}
@@ -93,17 +116,16 @@ int main(int argc, char *argv[]) {
 		}
 		break;
 	}
-
 	if(doTest) {
 
 		Database database = Database();
-		File file(File(1, 10, "./path"));
+		Torrent testTorrent(1337,10, "./path");
+		File file  = File(1, 10, testTorrent, "./path");
 		file.addPeer(PeerInfo(1, "127.0.0.3", "", 9999));// gdy są peers to coś throwuje, obstawiam że to coś z jakimiś shared_ptr
 		file.addPeer(PeerInfo(2, "127.0.0.2", "", 9992));
 		file.addPeer(PeerInfo(3, "127.0.0.4", "", 9993));
         database.addFile(file);
-        Torrent testTorrent(123, "test.txt");
-        DownloadManager manager(database, database.getFile(1), testTorrent);
+        DownloadManager manager(database, database.getFile(1));
         auto mngThread = manager.start_manager();
         mngThread.join();
         SSocket testTrackerSocket("127.0.0.1", PORT);
