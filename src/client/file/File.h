@@ -33,9 +33,14 @@ public:
     std::vector<std::shared_ptr<PeerInfo>> getPeers();
     int getNumOfSegments();
     int getSize();
+
+    uint8_t* getDataBegin();
+
     void addPeer(PeerInfo peer);
+
     SegmentState getSegmentState(Id segmentId);
     void setSegmentState(Id segmentId, SegmentState newState);
+
 private:
     void generateSegments();
 };

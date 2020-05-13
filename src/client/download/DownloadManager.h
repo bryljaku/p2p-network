@@ -18,6 +18,7 @@ class DownloadManager {
     std::vector<DownloadWorker> workers;
     std::vector<std::thread> worker_threads;
 public:
+
     DownloadManager(Database database1, std::shared_ptr<File> file1):database(std::move(database1)), file(std::move(file1)) {
         syslogger->info("DownloadManager for file {} created", file->getId());
     };

@@ -23,19 +23,20 @@ Torrent& File::getTorrent() {
 }
 
 
+
 File::File(Id id, int size, Torrent& torrent, std::string path) {
     this->size = size;
     this->torrent = torrent;
     this->path = std::move(path);
     this->id = id;
+
     peers = std::vector<std::shared_ptr<PeerInfo>>();
     generateSegments();
     numOfSegments = segments.size();
     completeSegmentsBool = std::vector<bool>(this->numOfSegments, false);
     this->dataBegin = nullptr; // todo - it should be some dataptr to file on disk
 //    this->dataEnd = this->dataBegin + size;
-    syslogger->info("Created file with id {}", id);
-    
+    syslogger->info("Created file with id {}", id); 
 }
 
 void File::generateSegments() {
@@ -68,6 +69,10 @@ int File::getNumOfSegments() {
 
 std::string File::getPath() {
     return path;
+}
+
+uint8_t* File::getDataBegin() {
+    return dataBegin;
 }
 
 void File::addPeer(PeerInfo peer) {

@@ -117,6 +117,7 @@ int main(int argc, char *argv[]) {
 		break;
 	}
 	if(doTest) {
+
 		Database database = Database();
 		Torrent testTorrent(1337,10, "./path");
 		File file  = File(1, 10, testTorrent, "./path");
