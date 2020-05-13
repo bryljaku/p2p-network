@@ -127,6 +127,7 @@ int main(int argc, char *argv[]) {
         DownloadManager manager(database, database.getFile(1));
         auto mngThread = manager.start_manager();
         mngThread.join();
+
         SSocket testTrackerSocket("127.0.0.1", PORT);
         testTrackerSocket.start();
         testTrackerSocket.sendOk();
