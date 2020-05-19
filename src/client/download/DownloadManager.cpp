@@ -27,7 +27,7 @@ void DownloadManager::createWorkers() {
         throw::std::runtime_error("No peers possesing file");
     
     for (auto& peer: peers)
-        workers.push_back(DownloadWorker(database, file, peer));
+        workers.push_back(DownloadWorker(database, file, peer, fileManager));
     syslogger->info("DownloadManager created workers for file {}", file->getId());
 }
 
@@ -64,7 +64,7 @@ void DownloadManager::updatePeers() {
 }
 
 void DownloadManager::startWorkerThreadForPeer(const std::shared_ptr<PeerInfo>& peer) {
-    workers.emplace_back(DownloadWorker(database, file, peer));
+    workers.emplace_back(DownloadWorker(database, file, peer, fileManager));
     worker_threads.emplace_back(workers.back().startWorker());
     worker_threads.back().join();
     syslogger->info("DownloadManager added new worker for file {} for new peer {}", file->getId(), peer->getId());
@@ -79,3 +79,4 @@ bool DownloadManager::checkIfWorkersWork() {
 
 DownloadManager::~DownloadManager() {
 }
+

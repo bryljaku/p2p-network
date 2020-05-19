@@ -117,15 +117,15 @@ int main(int argc, char *argv[]) {
 		break;
 	}
 	if(doTest) {
-
-		Database database = Database();
+		auto database = std::make_shared<Database>(Database());
+		FileManager fileManager(database);
 		Torrent testTorrent(1337,10, "./path");
 		File file  = File(1, 10, testTorrent, "./path");
-		file.addPeer(PeerInfo(1, "127.0.0.3", "", 9999));// gdy są peers to coś throwuje, obstawiam że to coś z jakimiś shared_ptr
+		file.addPeer(PeerInfo(1, "127.0.0.1", "", CLIENT_DEFAULT_PORT));// gdy są peers to coś throwuje, obstawiam że to coś z jakimiś shared_ptr
 		file.addPeer(PeerInfo(2, "127.0.0.2", "", 9992));
 		file.addPeer(PeerInfo(3, "127.0.0.4", "", 9993));
-        database.addFile(file);
-        DownloadManager manager(database, database.getFile(1));
+        database->addFile(file);
+        DownloadManager manager(database, database->getFile(1), fileManager);
         auto mngThread = manager.start_manager();
         mngThread.join();
         SSocket testTrackerSocket("127.0.0.1", PORT);
@@ -159,7 +159,8 @@ int main(int argc, char *argv[]) {
 		pthread_t thread_id;
 		int ret = pthread_create(&thread_id, NULL, clientResponderMainThread, (void*) conn_fd);
 		if (ret != 0) {
-			syslogger->error("Error from pthread: %d\n", ret); exit(1);
+			syslogger->error("Error from pthread: %d\n", ret);
+			exit(1);
 		}
 		syslogger->debug("main: created thread to handle connection " + std::to_string(conn_fd));
 	}

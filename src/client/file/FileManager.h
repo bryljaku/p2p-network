@@ -16,7 +16,7 @@
 
 class FileManager
 {
-	struct OpenedFile {
+    struct OpenedFile {
     	Filename fileName;
     	std::ifstream stream;
   	};
@@ -45,6 +45,7 @@ public:
 
 	bool readLock(const Filename fileName);
   	void readUnlock(const Filename fileName);
+   
 
 private:
 	//these are used only inside storeFile and storeSegmentToFile methods:
