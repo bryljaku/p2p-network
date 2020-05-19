@@ -12,7 +12,7 @@ class TrackerThread {
 	void handleUnavailables(Ips ips);
 	void respond(intptr_t connFd, TcpMessage *msg);
 public:
-	void * run(void * arg);
+	void * run(intptr_t connFd);
 };
 
 

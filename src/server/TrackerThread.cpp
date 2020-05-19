@@ -45,9 +45,7 @@ void TrackerThread::respond(intptr_t connFd, TcpMessage *msg) {
 	}
 }
 
-void * TrackerThread::run(void * arg) {
-	intptr_t connFd = (uintptr_t) arg;
-
+void * TrackerThread::run(intptr_t connFd) {
 	std::string ipAddress = getConnectedIp(connFd);
 
 	syslogger->debug("thread: serving " + ipAddress);

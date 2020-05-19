@@ -14,8 +14,9 @@
 
 
 void * runTrackerThread(void * args) {
+	intptr_t connFd = (uintptr_t) args;
 	TrackerThread t;
-	t.run(args);
+	t.run(connFd);
 }
 
 int main(int argc, char *argv[]) {
