@@ -76,9 +76,9 @@ int main(int argc, char *argv[]) {
 	guard(listen(socketFd, 100), "Could not listen on port " + portS);
 
 	// default tracker-client socket timeout
-	struct timeval tv;
-	tv.tv_sec = LISTENER_DEFAULT_TIMEOUT;
-	tv.tv_usec = 0;
+//	struct timeval tv;
+//	tv.tv_sec = LISTENER_DEFAULT_TIMEOUT;
+//	tv.tv_usec = 0;
 
 	syslogger->info("Listening on port " + std::to_string(ntohs(addr.sin_port)));
 	for (;;) {
