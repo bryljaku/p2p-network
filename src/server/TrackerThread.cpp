@@ -51,7 +51,6 @@ void * TrackerThread::run(intptr_t connFd) {
 	syslogger->debug("thread: serving " + ipAddress);
 	std::string defaultTimeoutS = "TODO: display timeout seconds"; // TODO
 
-
 	char buf[CLIENT_MAX_MESSAGE_SIZE];
 	for (;;) {
 		int bytesReceived = recv(connFd, buf, sizeof(buf), 0);
