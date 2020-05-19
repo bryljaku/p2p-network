@@ -14,6 +14,9 @@ BOOST_AUTO_TEST_CASE(get_seedlist) {
 	CSocket cs("127.0.0.1", 59096);
 	cs.start();
 	Torrent tor(1337, 10, "./path");
-	cs.requestFragmentsList(tor);
+	ListResponse lr = cs.requestFragmentsList(tor);
+	for(auto frag : lr.fragments()) {
+		syslogger->debug(frag);
+	}
 	cs.requestFragment(tor, 1);
 }
