@@ -1,6 +1,6 @@
 #include <sharedUtils.h>
 #include "DownloadManager.h"
-
+// created by Jakub
 std::thread DownloadManager::start_manager() {
     return std::thread([&] {try {
         createWorkers();
@@ -27,7 +27,7 @@ void DownloadManager::createWorkers() {
         throw::std::runtime_error("No peers possesing file");
     
     for (auto& peer: peers)
-        workers.push_back(DownloadWorker(database, file, torrent, peer));
+        workers.push_back(DownloadWorker(database, file, peer));
     syslogger->info("DownloadManager created workers for file {}", file->getId());
 }
 
@@ -47,7 +47,8 @@ void DownloadManager::manageWorkers() {
         }
         updatePeers();
         // todo - check if there are any problems with workers
-        sleep(60);
+        syslogger->info("Manager check");
+        sleep(5);
     }
 }
 void DownloadManager::updatePeers() {
@@ -63,14 +64,14 @@ void DownloadManager::updatePeers() {
 }
 
 void DownloadManager::startWorkerThreadForPeer(const std::shared_ptr<PeerInfo>& peer) {
-    workers.emplace_back(DownloadWorker(database, file, torrent, peer));
+    workers.emplace_back(DownloadWorker(database, file, peer));
     worker_threads.emplace_back(workers.back().startWorker());
     worker_threads.back().join();
     syslogger->info("DownloadManager added new worker for file {} for new peer {}", file->getId(), peer->getId());
     
 }
 bool DownloadManager::checkIfWorkersWork() {
-    for (auto w: workers)
+    for (auto &w: workers)
         if (!w.isDone())
             return true;
     return false;

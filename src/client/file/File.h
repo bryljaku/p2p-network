@@ -8,10 +8,12 @@
 #include "../utils/GeneralTypes.h"
 #include "PeerInfo.h"
 #include <mutex>
-
+#include <Torrent.h>
+//created by Jakub
 
 class File {
     Id id = -1;
+    Torrent torrent;
     std::vector<Segment> segments;
     int numOfSegments = -1;
     int size = -1;
@@ -19,20 +21,26 @@ class File {
     std::vector<bool> completeSegmentsBool;
     std::vector<std::shared_ptr<PeerInfo>> peers;
     uint8_t *dataBegin;
-//    uint8_t *dataEnd;
-//    std::vector<std::mutex *> my_mutexes;
+    uint8_t *dataEnd;
+    std::vector<std::mutex *> my_mutexes;
 public:
-    File(Id id, int size, std::string path);
+    File(Id id, int size, Torrent& torrent, std::string path);
     bool isComplete();
     Segment getSegment(int id);
     Id getId();
+    Torrent& getTorrent();
     std::string getPath();
     std::vector<std::shared_ptr<PeerInfo>> getPeers();
     int getNumOfSegments();
     int getSize();
+
+    uint8_t* getDataBegin();
+
     void addPeer(PeerInfo peer);
+
     SegmentState getSegmentState(Id segmentId);
     void setSegmentState(Id segmentId, SegmentState newState);
+
 private:
     void generateSegments();
 };

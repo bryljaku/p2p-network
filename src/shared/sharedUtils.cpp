@@ -1,5 +1,5 @@
+// created by Piotr
 #include "sharedUtils.h"
-
 #include <utility>
 
 std::shared_ptr<spdlog::logger> syslogger;

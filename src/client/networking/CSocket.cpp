@@ -1,5 +1,5 @@
+//created by Piotr
 #include "CSocket.h"
-
 #include <utility>
 
 ListResponse CSocket::requestFragmentsList(const Torrent& torrent) {
