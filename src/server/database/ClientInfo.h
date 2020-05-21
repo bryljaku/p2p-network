@@ -4,7 +4,7 @@
 #include <utility>
 #include <vector>
 #include <string>
-#include "../utils/GeneralTypes.h"
+#include "GeneralTypes.h"
 
 class ClientInfo {
     Id id;

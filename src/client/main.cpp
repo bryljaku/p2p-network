@@ -1,8 +1,9 @@
 #include <iostream>
+#include <utility>
 #include <pthread.h>
 #include <unistd.h>
 #include <sharedUtils.h>
-#include <networking/ResponderThread.h>
+#include "networking/ResponderThread.h"
 #include "download/DownloadManager.h"
 #include "networking/CSocket.h"
 #include "networking/RequestHandler.h"
@@ -20,50 +21,7 @@ void * runResponderThread(void * arg) {
 	res.run(connFd);
 }
 
-int main(int argc, char *argv[]) {
-	initLogger("p2p-client");
-	syslogger->info("p2p client starting");
-
-	int port = CLIENT_DEFAULT_PORT;
-	int doTest = true;
-	for(;;) {
-		switch(getopt(argc, argv, "sp:")) {
-			case 'p': {
-				int potentialPort = (int) strtol(optarg, nullptr, 10);
-				if(potentialPort<1024 || potentialPort>65535) {
-					perror("Invalid port number");
-					exit(1);
-				}
-			}
-				continue;
-			case 's':
-				doTest = false;
-				continue;
-			case -1:
-				break;
-		}
-		break;
-	}
-	if(doTest) {
-
-		Database database = Database();
-		Torrent testTorrent(1337,10, "./path");
-		File file  = File(1, 10, testTorrent, "./path");
-		file.addPeer(PeerInfo(1, "127.0.0.3", "", 9999));// gdy są peers to coś throwuje, obstawiam że to coś z jakimiś shared_ptr
-		file.addPeer(PeerInfo(2, "127.0.0.2", "", 9992));
-		file.addPeer(PeerInfo(3, "127.0.0.4", "", 9993));
-        database.addFile(file);
-        DownloadManager manager(database, database.getFile(1));
-        auto mngThread = manager.start_manager();
-        mngThread.join();
-
-        SSocket testTrackerSocket("127.0.0.1", PORT);
-        testTrackerSocket.start();
-        testTrackerSocket.sendOk();
-        testTrackerSocket.sendSeedlistRequest(1);
-		testTrackerSocket.sendNewTorrentRequest(testTorrent);
-	}
-
+void connListen(int port) {
 	std::string portS  = std::to_string(port);
 	int socketFd = guard(socket(AF_INET, SOCK_STREAM, 0), "Could not create TCP listening socket");
 
@@ -92,5 +50,81 @@ int main(int argc, char *argv[]) {
 		}
 		syslogger->debug("main: created thread to handle connection " + std::to_string(conn_fd));
 	}
+}
+
+void test() {
+	Database database = Database();
+	Torrent testTorrent(1337,10, "./path");
+	File file  = File(testTorrent, "./path");
+	file.addPeer(PeerInfo(1, "127.0.0.3", "", 9999));// gdy są peers to coś throwuje, obstawiam że to coś z jakimiś shared_ptr
+	file.addPeer(PeerInfo(2, "127.0.0.2", "", 9992));
+	file.addPeer(PeerInfo(3, "127.0.0.4", "", 9993));
+	database.addFile(file);
+	DownloadManager manager(database, database.getFile(1337));
+	auto mngThread = manager.start_manager();
+	mngThread.join();
+
+	SSocket testTrackerSocket("127.0.0.1", PORT);
+	testTrackerSocket.start();
+	testTrackerSocket.sendOk();
+	testTrackerSocket.sendSeedlistRequest(1);
+	testTrackerSocket.sendNewTorrentRequest(testTorrent);
+}
+
+// 0 - ok, 1 - error opening file
+int addTorrentFile(Database db, std::string filename) {
+	Torrent nTor(std::move(filename));
+	if(nTor.size == -1) {
+		return 1;
+	}
+	//TODO: generate a new File from just a Torrent object
+	return 0;
+}
+
+int main(int argc, char *argv[]) {
+	initLogger("p2p-client");
+	syslogger->info("p2p client starting");
+
+	int port = CLIENT_DEFAULT_PORT;
+	bool doTest = true;
+
+	Database db;
+
+	for(;;) {
+		switch(getopt(argc, argv, "sp:a:")) {
+			case 'p': {
+				int potentialPort = (int) strtol(optarg, nullptr, 10);
+				if(potentialPort<1024 || potentialPort>65535) {
+					perror("Invalid port number");
+					exit(1);
+				}
+				port = potentialPort;
+				continue;
+			}
+			case 's':
+				doTest = false;
+				continue;
+			case 'a': {
+				int result = addTorrentFile(db, optarg);
+				if (result == 0) {
+					std::cout << "Added torrent file successfully";
+				} else if (result == 1) {
+					std::cout << "Can't open such a file";
+				}
+				continue;
+			}
+			case -1:
+				break;
+		}
+		break;
+	}
+
+	if(doTest) {
+		test();
+	}
+
+
+	connListen(port);
+
 	return 0;
 }

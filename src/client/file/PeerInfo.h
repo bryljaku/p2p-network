@@ -3,7 +3,7 @@
 //created by Jakub
 
 #include <vector>
-#include "../utils/GeneralTypes.h"
+#include "GeneralTypes.h"
 
 class PeerInfo {
     Id id;

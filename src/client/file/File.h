@@ -5,15 +5,14 @@
 #include <vector>
 #include <memory>
 #include "Segment.h"
-#include "../utils/GeneralTypes.h"
+#include "GeneralTypes.h"
 #include "PeerInfo.h"
 #include <mutex>
 #include <Torrent.h>
 //created by Jakub
 
 class File {
-    Id id = -1;
-    Torrent torrent;
+	Torrent torrent;
     std::vector<Segment> segments;
     int numOfSegments = -1;
     int size = -1;
@@ -24,7 +23,7 @@ class File {
     uint8_t *dataEnd;
     std::vector<std::mutex *> my_mutexes;
 public:
-    File(Id id, int size, Torrent& torrent, std::string path);
+    File(const Torrent& torrent, std::string path);
     bool isComplete();
     Segment getSegment(int id);
     Id getId();

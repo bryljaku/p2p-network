@@ -37,7 +37,7 @@ void ResponderThread::respond(intptr_t connFd, TcpMessage *msg) {
 
 	Database testdb;
 	Torrent testTorrent(1337,10, "./path");
-	testdb.addFile(File(1, 10, testTorrent, "./path"));
+	testdb.addFile(File(testTorrent, "./path"));
 
 	//END TEST
 	if(code == OK) {
