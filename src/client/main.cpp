@@ -123,7 +123,6 @@ int main(int argc, char *argv[]) {
 		test();
 	}
 
-
 	connListen(port);
 
 	return 0;

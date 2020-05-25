@@ -39,7 +39,7 @@ void DownloadWorker::work() {
                 //todo modify PeerInfo so that it won't be selected for next downloads if > X downloadErrors
             } else {
                 const auto &fragmentBytes = fragmentResponse.fragment();
-                //fileManager->writeToSegment(fragmentBytes); //todo - waiting for fileManager
+                fileManager.storeSegmentToFile(file->getTorrent().fileName, file->getPath(), fragmentId, fragmentBytes); //todo - waiting for fileManager
                 file->setSegmentState(fragmentId, COMPLETE);
                 syslogger->info("DownloadWorker correctly downloaded segment {} for torrent {}", fragmentId, torrent.hashed);
             }
