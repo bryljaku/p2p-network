@@ -24,11 +24,10 @@ Torrent& File::getTorrent() {
 
 
 
-File::File(Id id, int size, Torrent& torrent, std::string path) {
-    this->size = size;
+File::File(const Torrent& torrent, std::string path) {
+    this->size = torrent.size;
     this->torrent = torrent;
     this->path = std::move(path);
-    this->id = id;
 
     peers = std::vector<std::shared_ptr<PeerInfo>>();
     generateSegments();
@@ -36,7 +35,7 @@ File::File(Id id, int size, Torrent& torrent, std::string path) {
     completeSegmentsBool = std::vector<bool>(this->numOfSegments, false);
     this->dataBegin = nullptr; // todo - it should be some dataptr to file on disk
 //    this->dataEnd = this->dataBegin + size;
-    syslogger->info("Created file with id {}", id); 
+    syslogger->info("Created file with id {}", getId());
 }
 
 void File::generateSegments() {
@@ -52,7 +51,7 @@ void File::generateSegments() {
 //    for (int i = 0; i < numOfSegments; i++)
 //        my_mutexes[i] = new std::mutex();
     
-    syslogger->info("Generated {} segments for file with id {}", numOfSegments, id);
+    syslogger->info("Generated {} segments for file with id {}", numOfSegments, getId());
 }
 
 std::vector<std::shared_ptr<PeerInfo>> File::getPeers() {
@@ -60,7 +59,7 @@ std::vector<std::shared_ptr<PeerInfo>> File::getPeers() {
 }
 
 Id File::getId() {
-    return id;
+    return torrent.hashed;
 }
 
 int File::getNumOfSegments() {
@@ -77,13 +76,13 @@ uint8_t* File::getDataBegin() {
 
 void File::addPeer(PeerInfo peer) {
     peers.emplace_back(std::make_shared<PeerInfo>(peer));
-    syslogger->info("File {} added peer {}",id, peer.getId());
+    syslogger->info("File {} added peer {}", getId(), peer.getId());
 }
 
 //todo add concurrency
 void File::setSegmentState(int segmentId, SegmentState newState) {
     segments[segmentId].setSegmentState(newState);
-    syslogger->info("File {} set segment {} state to {}",id,  segmentId, newState);
+    syslogger->info("File {} set segment {} state to {}", getId(), segmentId, newState);
 }
 
 SegmentState File::getSegmentState(Id segmentId) {

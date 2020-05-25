@@ -58,3 +58,26 @@ Ips SSocket::sendSeedlistRequest(uint64_t hashedTorrent) {
 
 SSocket::SSocket(std::string trackerIp, uint trackerPort) : BaseSocket(trackerIp, trackerPort) {
 }
+
+void SSocket::sendClientUnavailable(Ips ips) {
+	TcpMessage t;
+	t.set_code(CS_CLIENT_UNAVAILABLE);
+	auto n = new ClientUnavailable;
+	for(int i=0; ips.ipv4s.size(); i++) {
+		n->set_ipv4addresses(i, ips.ipv4s[i]);
+	}
+	for(int i=0; ips.ipv6s.size(); i++) {
+		n->set_ipv6addresses(i, ips.ipv6s[i]);
+	}
+	t.set_allocated_clientunavailable(n);
+	send(&t);
+}
+
+void SSocket::sendImSeed(Torrent torrent) {
+	TcpMessage t;
+	t.set_code(CS_IM_A_SEED);
+	auto n = new ImASeed;
+	n->set_hashedtorrent(torrent.hashed);
+	t.set_allocated_imaseed(n);
+	send(&t);
+}

@@ -6,65 +6,17 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <pthread.h>
-#include <Torrent.h>
 #include "sharedUtils.h"
+#include "TrackerThread.h"
 
 #define SERVER_DEFAULT_PORT 59095
 #define SOCKET_DEFAULT_TIMEOUT 5	// in seconds TODO: zmienic na wyzszy timeout, bo tak to wywala klientow zaraz
-#define CLIENT_MAX_MESSAGE_SIZE 128*1024	// in bytes (128*1024) = 128 KiB
 
 
-void respond(intptr_t connFd, TcpMessage *msg) {
-	TcpCode code = msg->code();
-	TcpMessage response;
-
-	if(code == OK) {
-		response.set_code(OK);
-		sendTcpMsg(connFd, &response);
-	} else if (code == CS_SEEDLIST_REQUEST) {	//TODO: jak na razie tylko test, ale dziala
-		response.set_code(CS_SEEDLIST_RESPONSE);
-		auto t = new SeedlistResponse;			// delete(t) not needed, Protobuf does it when freeing response
-		t->add_ipv4peers("TEST");
-		response.set_allocated_seedlistresponse(t);
-		syslogger->debug(response.SerializeAsString());
-		sendTcpMsg(connFd, &response);
-	} else if (code == CS_NEW_REQUEST) {
-		Torrent newTorrent(msg->newrequest().torrentmsg());	//TODO: jeszcze musimy dodac do bazy danych
-		newTorrent.genDefaultHash();
-		response.set_code(CS_NEW_RESPONSE);
-		auto t = new NewResponse;
-		t->set_newhash(newTorrent.hashed);
-		response.set_allocated_newresponse(t);
-		sendTcpMsg(connFd, &response);
-	}
-}
-
-void * trackerMainThread(void * arg) {
-    intptr_t connFd = (uintptr_t) arg;
-
-	std::string ipAddress = getConnectedIp(connFd);
-
-    syslogger->debug("thread: serving " + ipAddress);
-    std::string defaultTimeoutS = std::to_string(SOCKET_DEFAULT_TIMEOUT);
-
-
-    char buf[CLIENT_MAX_MESSAGE_SIZE];
-    for (;;) {
-        int bytesReceived = recv(connFd, buf, sizeof(buf), 0);
-        if (bytesReceived <= 0) {
-        	syslogger->info("Client " + ipAddress + " disconnected.");
-        	break;
-        }
-        std::string messageString(buf);
-        TcpMessage message;
-        message.ParseFromArray(buf, sizeof(buf));
-        syslogger->debug("From: " + ipAddress + " Code: " + TcpCode_Name(message.code()));
-        respond(connFd, &message);
-    }
-
-    guard(close(connFd),  "Could not close socket");
-    syslogger->debug("thread: finished serving " + std::to_string(connFd));
-    return NULL;
+void * runTrackerThread(void * args) {
+	intptr_t connFd = (uintptr_t) args;
+	TrackerThread t;
+	t.run(connFd);
 }
 
 int main(int argc, char *argv[]) {
@@ -107,7 +59,7 @@ int main(int argc, char *argv[]) {
         intptr_t conn_fd = guard(accept(socketFd, NULL, NULL), "Could not accept");
 //		setsockopt(conn_fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
         pthread_t thread_id;
-        int ret = pthread_create(&thread_id, NULL, trackerMainThread, (void*) conn_fd);
+        int ret = pthread_create(&thread_id, NULL, runTrackerThread, (void*) conn_fd);
         if (ret != 0) {
         	syslogger->error("Error from pthread: %d\n", ret); exit(1);
         }

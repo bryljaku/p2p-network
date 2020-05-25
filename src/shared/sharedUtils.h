@@ -5,7 +5,7 @@
 #include <TcpMessage.pb.h>
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/syslog_sink.h"
-#include "../../src/server/utils/GeneralTypes.h"
+#include "GeneralTypes.h"
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>

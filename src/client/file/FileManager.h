@@ -11,7 +11,7 @@
 #include <utility>
 #include "Segment.h"
 #include "File.h"
-#include "../utils/GeneralTypes.h"
+#include "GeneralTypes.h"
 #include "../../shared/Torrent.h"
 #include "../database/Database.h"
 

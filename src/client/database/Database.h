@@ -10,13 +10,15 @@
 class Database {
     std::vector<std::shared_ptr<File>> files = std::vector<std::shared_ptr<File>>();
 public:
-    std::vector<std::shared_ptr<File>> getFiles();
+    std::vector<std::shared_ptr<File>> &getFiles();
     void addFile(File file);
     void removeFile(Id id);
     void removeFile(std::string path);
-    std::shared_ptr<File> getFile(Id id);
-    std::shared_ptr<File> getFile(std::string path);
+    std::shared_ptr<File> &getFile(Id id);
+    std::shared_ptr<File> &getFile(std::string path);
 
+    int loadFromFile(std::string filename);
+    int saveToFile(std::string filename);
 };
 
 

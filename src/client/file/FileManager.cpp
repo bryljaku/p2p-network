@@ -95,7 +95,7 @@ void FileManager::createLocalFileAndAddToDB(Torrent& torrent, Id fileId, std::st
 
 	fileCreator.close();
 
-	database->addFile(File(fileId, torrent.size, torrent, path));
+	database->addFile(File(torrent, path));
 }
 
 // void FileManager::addFile(Id id, Filename name, int size, std::string path) {

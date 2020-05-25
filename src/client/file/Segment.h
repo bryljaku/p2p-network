@@ -2,7 +2,7 @@
 #define P2P_NETWORK_SEGMENT_H
 // created by Jakub
 #include <vector>
-#include "../utils/GeneralTypes.h"
+#include "GeneralTypes.h"
 enum SegmentState {
     FREE,
     DOWNLOADING,
