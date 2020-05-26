@@ -5,19 +5,26 @@
 #include <thread>
 #include <utility>
 #include <database/Database.h>
+#include <src/client/file/FileManager.h>
 
 #include <Torrent.h>
 #include <networking/CSocket.h>
 
 class DownloadWorker {
-    Database database;
+    std::shared_ptr<Database> database;
     std::shared_ptr<File> file;
+    FileManager& fileManager;
     std::shared_ptr<PeerInfo> peer;
     Torrent torrent;
     bool finished;
 public:
 
-    DownloadWorker(Database database1, std::shared_ptr<File> file1, std::shared_ptr<PeerInfo> peer1):database(database1), file(std::move(file1)), peer(peer1) {
+    DownloadWorker(std::shared_ptr<Database> database1, std::shared_ptr<File> file1, std::shared_ptr<PeerInfo> peer1, FileManager& fileManager1):
+    database(std::move(database1)),
+    fileManager(fileManager1),
+    file(std::move(file1)),
+    peer(std::move(peer1)) {
+        finished = false;
         syslogger->info("DownloadW for file {} created", file->getId());
     }
     

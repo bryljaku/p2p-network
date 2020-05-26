@@ -1,4 +1,6 @@
 #include "FileManager.h"
+#include <sharedUtils.h>
+
 
 FileManager::FileManager(std::shared_ptr<Database> database) : database(std::move(database))  {
 }
@@ -42,7 +44,9 @@ void FileManager::storeFile(std::shared_ptr<File> file) {
 	writeUnlock(fileName);
 }
 
-void FileManager::storeSegmentToFile(const Filename fileName, const Id segmentId, uint8_t* segmentData) {
+void FileManager::storeSegmentToFile(const Filename fileName, const std::string path, const Id segmentId, const std::string& segmentData) {
+	
+
 	writeLock(fileName);
 
 	//TODO? ASSUMING FILE WAS CREATED BEFORE RUNNING THIS METHOD !!!
@@ -54,19 +58,20 @@ void FileManager::storeSegmentToFile(const Filename fileName, const Id segmentId
 	std::fstream fileStream(fileName, std::ios_base::binary | std::ios_base::out | std::ios_base::in); // "in" mode needed to prevent file contents deletion
 
 	if (fileStream.fail()) {
-		//log error - couldn't open the file
+		syslogger->error("File Manager couldn't open file '{}' at path '{}'", fileName, path);
 		return;
 	}
 
-	char* segmentContents = reinterpret_cast<char *>(segmentData);
+	//const char* segmentContents = reinterpret_cast<char *>(segmentData);
+	const char* segmentContents = segmentData.c_str();
 
 	fileStream.seekp(segmentId * DEFAULTSEGMENTSIZE, std::ios_base::beg);
 	fileStream.write(segmentContents, DEFAULTSEGMENTSIZE);
 
 	if(!fileStream) {
-		//TODO log error while storing file
+		syslogger->error("File Manager couldn't store into file '{}' at path '{}'", fileName, path);
 	} else {
-		//TODO log success
+		syslogger->info("File Manager stored segment to file '{}' at path '{}'", fileName, path);
 	}
 
 	fileStream.close();
@@ -177,6 +182,7 @@ bool FileManager::readLock(const Filename fileName){
 		if (of->fileName == fileName) {
 			//file already locked 
 			//no need to perform another one, multiple readers allowed
+			syslogger->info("File Manager didn't need to lock '{}' for reading again", fileName);
 			readLockMutex.unlock();
 			return true;
 		}
@@ -189,20 +195,19 @@ bool FileManager::readLock(const Filename fileName){
 
   	if (of->stream.fail()) {
   		readLockMutex.unlock();
-  		//TODO log error - couldn't open for reading
+  		syslogger->error("File Manager couldn't open file '{}' for reading at readLock", fileName);
   		return false;
   	}
 
   	readLockedFiles.push_back(of);
 
   	readLockMutex.unlock();
-  	//TODO log opened for reading success
+  	syslogger->info("File Manager locked file '{}' for reading", fileName);
   	return true;
   }
 
 
 void FileManager::readUnlock(const Filename fileName) {
-	//TODO logging
 	readLockMutex.lock();
 	for (auto f = readLockedFiles.begin(); f != readLockedFiles.end(); ++f) {
 		if (fileName == (*f)->fileName) {
@@ -212,6 +217,7 @@ void FileManager::readUnlock(const Filename fileName) {
 		}
 	}
 	readLockMutex.unlock();
+	syslogger->info("File Manager unlocked file '{}' for reading", fileName);
 }
 
 void FileManager::writeLock(const Filename fileName) {
@@ -247,10 +253,10 @@ void FileManager::writeLock(const Filename fileName) {
 	writeLockedFiles.push_back(fileName);
 
 	writeLockMutex.unlock();
+	syslogger->info("File Manager locked file '{}' for writing", fileName);
 }
 
 void FileManager::writeUnlock(const Filename fileName) {
-	//TODO logging
 	writeLockMutex.lock();
 
 	for (auto f = writeLockedFiles.begin(); f != writeLockedFiles.end(); ++f) {
@@ -265,5 +271,7 @@ void FileManager::writeUnlock(const Filename fileName) {
 	    }
   	}
   writeLockMutex.unlock();
+  syslogger->info("File Manager unlocked file '{}' for writing", fileName);
 }
+
 

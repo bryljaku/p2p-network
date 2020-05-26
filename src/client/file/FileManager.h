@@ -8,6 +8,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <vector>
+#include <utility>
 #include "Segment.h"
 #include "File.h"
 #include "GeneralTypes.h"
@@ -16,7 +17,7 @@
 
 class FileManager
 {
-	struct OpenedFile {
+    struct OpenedFile {
     	Filename fileName;
     	std::ifstream stream;
   	};
@@ -37,7 +38,7 @@ public:
 	~FileManager();
 
 	void storeFile(std::shared_ptr<File> file); //stores COMPLETE file
-	void storeSegmentToFile(const Filename fileName, const Id segmentId, uint8_t* segmentData);
+	void storeSegmentToFile(const Filename fileName, const std::string path, const Id segmentId, const std::string& segmentData);
 	uint8_t* getSegment(const Filename fileName, const Id segmentId, const std::size_t segmentSize);
 	//void addFile(Id id, Filename name, int size, std::string path);
 	//bool fileExists(const Filename fileName);
@@ -45,6 +46,7 @@ public:
 
 	bool readLock(const Filename fileName);
   	void readUnlock(const Filename fileName);
+   
 
 private:
 	//these are used only inside storeFile and storeSegmentToFile methods:

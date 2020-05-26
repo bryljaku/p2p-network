@@ -49,7 +49,7 @@ Ips SSocket::sendSeedlistRequest(uint64_t hashedTorrent) {
 	if(state == SENT) {
 		receive();
 		if(state == RECVD && lastMsg.code()==CS_SEEDLIST_RESPONSE) {
-			syslogger->debug(lastMsg.seedlistresponse().ipv4peers().at(0)); //TODO usunac bo test
+			syslogger->debug(lastMsg.seedlistresponse().ipv4peers()[0]); //TODO usunac bo test
 			// TODO: zrobic strukture Ips z tych otrzymanych adresow
 		}
 	}
