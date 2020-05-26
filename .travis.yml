@@ -3,7 +3,7 @@ sudo: required
 services:
   - docker
 before_install:
-  - run-after-clone.sh
+  - ./run-after-clone.sh
   - docker build -t make-test .
 script:
   - docker run -e CI=true make-test
