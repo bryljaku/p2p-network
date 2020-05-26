@@ -1,0 +1,27 @@
+version: "3.5"
+
+services:
+  server:
+    stdin_open: true
+    tty: true
+    build:
+      context: .
+      network: host
+      dockerfile: Dockerfile.server
+    image: bittorrent-server
+    networks:
+      - bittorrent-network
+  client:
+    stdin_open: true
+    tty: true
+    build:
+      context: .
+      network: host
+      dockerfile: Dockerfile.client
+    image: bittorrent-client
+    networks:
+      - bittorrent-network
+
+networks:
+  bittorrent-network:
+    driver: bridge

@@ -5,4 +5,4 @@ RUN apt-get -y install g++ cmake libboost-test-dev protobuf-compiler libprotobuf
 WORKDIR /app
 COPY . .
 RUN cmake .
-ENTRYPOINT make
+RUN make
