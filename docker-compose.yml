@@ -1,4 +1,4 @@
-version: "3.5"
+version: "3"
 
 services:
   server:
@@ -11,6 +11,18 @@ services:
     image: bittorrent-server
     networks:
       - bittorrent-network
+  client_seed:
+    stdin_open: true
+    tty: true
+    build:
+      context: .
+      network: host
+      dockerfile: Dockerfile.client
+    command: ./client -s
+    image: bittorrent-client
+    networks:
+      - bittorrent-network
+
   client:
     stdin_open: true
     tty: true
