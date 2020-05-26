@@ -53,14 +53,15 @@ void connListen(int port) {
 }
 
 void test() {
-	Database database = Database();
+	auto database = std::make_shared<Database>();
+	FileManager fileManager = FileManager(database);
 	Torrent testTorrent(1337,10, "./path");
 	File file  = File(testTorrent, "./path");
 	file.addPeer(PeerInfo(1, "127.0.0.3", "", 9999));// gdy są peers to coś throwuje, obstawiam że to coś z jakimiś shared_ptr
 	file.addPeer(PeerInfo(2, "127.0.0.2", "", 9992));
 	file.addPeer(PeerInfo(3, "127.0.0.4", "", 9993));
-	database.addFile(file);
-	DownloadManager manager(database, database.getFile(1337));
+	database->addFile(file);
+	DownloadManager manager(database, database->getFile(1337), fileManager);
 	auto mngThread = manager.start_manager();
 	mngThread.join();
 
@@ -77,7 +78,7 @@ int addTorrentFile(Database db, std::string filename) {
 	if(nTor.size == -1) {
 		return 1;
 	}
-	//TODO: generate a new File from just a Torrent object
+
 	return 0;
 }
 
