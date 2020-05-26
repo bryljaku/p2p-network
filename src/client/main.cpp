@@ -11,10 +11,11 @@
 #include "file/PeerInfo.h"
 #include "database/Database.h"
 
-#define PORT 59095
+#define TRACKER_PORT 59095
+#define TRACKER_ADDRESS "172.28.1.1"
 #define CLIENT_DEFAULT_PORT 59096
 #define LISTENER_DEFAULT_TIMEOUT 5;
-
+#define CLIENT_SEED_TEST_ADDRESS "172.28.1.2"
 void * runResponderThread(void * arg) {
 	intptr_t connFd = (uintptr_t) arg;
 	ResponderThread res;
@@ -57,15 +58,13 @@ void test() {
 	FileManager fileManager = FileManager(database);
 	Torrent testTorrent(1337,10, "./path");
 	File file  = File(testTorrent, "./path");
-	file.addPeer(PeerInfo(1, "127.0.0.3", "", 9999));// gdy są peers to coś throwuje, obstawiam że to coś z jakimiś shared_ptr
-	file.addPeer(PeerInfo(2, "127.0.0.2", "", 9992));
-	file.addPeer(PeerInfo(3, "127.0.0.4", "", 9993));
+	file.addPeer(PeerInfo(1, CLIENT_SEED_TEST_ADDRESS, "", CLIENT_DEFAULT_PORT));
 	database->addFile(file);
 	DownloadManager manager(database, database->getFile(1337), fileManager);
 	auto mngThread = manager.start_manager();
 	mngThread.join();
 
-	SSocket testTrackerSocket("127.0.0.1", PORT);
+	SSocket testTrackerSocket(TRACKER_ADDRESS, TRACKER_PORT);
 	testTrackerSocket.start();
 	testTrackerSocket.sendOk();
 	testTrackerSocket.sendSeedlistRequest(1);
