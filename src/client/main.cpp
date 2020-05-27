@@ -16,6 +16,7 @@
 #define CLIENT_DEFAULT_PORT 59096
 #define LISTENER_DEFAULT_TIMEOUT 5;
 #define CLIENT_SEED_TEST_ADDRESS "172.28.1.2"
+
 void * runResponderThread(void * arg) {
 	intptr_t connFd = (uintptr_t) arg;
 	ResponderThread res;

@@ -1,5 +1,6 @@
 #include <database/Database.h>
 #include "ResponderThread.h"
+#include <file/FileManager.h>
 
 #define SOCKET_DEFAULT_TIMEOUT 5			//TODO: zwiekszyc potem
 #define CLIENT_MAX_MESSAGE_SIZE 128*1024	// in bytes
@@ -9,7 +10,6 @@ void ResponderThread::run(intptr_t connFd) {
 
 	syslogger->debug("thread: serving " + ipAddress);
 	std::string defaultTimeoutS = std::to_string(SOCKET_DEFAULT_TIMEOUT);
-
 
 	char buf[CLIENT_MAX_MESSAGE_SIZE];
 	for (;;) {
@@ -32,6 +32,7 @@ void ResponderThread::run(intptr_t connFd) {
 void ResponderThread::respond(intptr_t connFd, TcpMessage *msg) {
 	TcpCode code = msg->code();
 	TcpMessage response;
+	FileManager fm;
 
 	//TEST
 
@@ -70,7 +71,8 @@ void ResponderThread::respond(intptr_t connFd, TcpMessage *msg) {
 					fr->set_filecode(F_FINE);
 					fr->set_fragnum(msg->fragmentrequest().fragnum());
 					fr->set_hashedtorrent(msg->mutable_fragmentrequest()->hashedtorrent());
-					fr->set_fragment((const char*)s->getSegment(msg->fragmentrequest().fragnum()).getDataPtr());
+					//fr->set_fragment((const char*)s->getSegment(msg->fragmentrequest().fragnum()).getDataPtr());
+					fr->set_fragment((const char*) fm.getSegment(s->getTorrent().fileName, msg->fragmentrequest().fragnum()));
 				}
 			}
 		}
