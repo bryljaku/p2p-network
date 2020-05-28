@@ -11,28 +11,28 @@ class ClientInfo {
     IpV4Address ipV4Address;
     IpV6Address ipV6Address;
     Port port;
-    std::vector<Filename> filesToShare;
+    std::vector<Hash> torrentHashesToShare;
 
 
 public:
-    ClientInfo(Id id, IpV4Address ipV4, IpV6Address ipV6, Port port, std::vector<std::string> files) {
+    ClientInfo(Id id, IpV4Address ipV4, IpV6Address ipV6, Port port, std::vector<Hash> hashes) {
         this->id = id;
-        this->filesToShare = std::move(files);
+        this->torrentHashesToShare = std::move(hashes);
         this->ipV4Address = std::move(ipV4);
         this->ipV6Address = std::move(ipV6);
-        this->port = std::move(port);
+        this->port = port;
     }
     
-    void setFilesToShare(std::vector<std::string> newFiles) {
-        this->filesToShare = std::move(newFiles);
+    void setFilesToShare(std::vector<Hash> newHashes) {
+        this->torrentHashesToShare = std::move(newHashes);
     }
-    std::vector<Filename> getFilesToShare() {
-        return this->filesToShare;
+    std::vector<Hash> getHashesToShare() {
+        return this->torrentHashesToShare;
     }
     
-    bool checkIfHasFile(const std::string& filename) {
-        for(auto& i: filesToShare)
-            if(i == filename)
+    bool checkIfSharesTorrent(const Hash& hash) {
+        for(auto& i: torrentHashesToShare)
+            if(i == hash)
                 return true;
         return false;
     }
@@ -45,13 +45,17 @@ public:
     IpV6Address getIpV6Address() {
         return ipV6Address;
     }
-    void addFileToShare(Filename filename) {
-        for (auto& f: filesToShare)
-            if (f == filename) return;
-        filesToShare.emplace_back(filename);
+    Port getPort() {
+        return port;
     }
-    void deleteFileToShare(Filename filename) {
-        filesToShare.erase(std::remove(filesToShare.begin(), filesToShare.end(), filename), filesToShare.end());
+
+    void addFileToShare(Hash hash) {
+        for (auto& f: torrentHashesToShare)
+            if (f == hash) return;
+        torrentHashesToShare.emplace_back(hash);
+    }
+    void deleteFileToShare(Hash hash) {
+        torrentHashesToShare.erase(std::remove(torrentHashesToShare.begin(), torrentHashesToShare.end(), hash), torrentHashesToShare.end());
     }
 };
 
