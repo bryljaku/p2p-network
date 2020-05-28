@@ -3,12 +3,13 @@
 // created by Jakub
 std::thread DownloadManager::start_manager() {
     return std::thread([&] {try {
+        updatePeers();
         createWorkers();
         startWorkers();
-        joinWorkers();
         manageWorkers();
+        joinWorkers();
     } catch (std::exception &e) {
-        syslogger->error("DownloadManager->{}\n{}", file->getPath(), e.what());
+        syslogger->error("Exception caught in DownloadManager for torrent {}\n{}", file->getTorrent().hashed, e.what());
     }
     });
 }
@@ -50,28 +51,24 @@ void DownloadManager::manageWorkers() {
     }
 }
 void DownloadManager::updatePeers() {
+    syslogger->info("DownloadManager updating peers for torrent {}", file->getTorrent().hashed);
     auto listResponse = sSocket.sendSeedlistRequest(file->getTorrent().hashed);
-    for (auto i: listResponse.ipv4s)
-        if (!checkIfFileContainsPeerWithGivenIpV4(i))
-            file->addPeer(PeerInfo(file->getPeers().size(),i, "", CLIENT_DEFAULT_PORT));
-    for (auto i: listResponse.ipv6s)
-        if (!checkIfFileContainsPeerWithGivenIpV6(i))
-            file->addPeer(PeerInfo(file->getPeers().size(), "", i, CLIENT_DEFAULT_PORT));
-
+    for (int i = 0; i < listResponse.ipv4s.size(); i++)
+        if (!checkIfFileContainsPeerWithGivenIpV4(listResponse.ipv4s[i]) || checkIfFileContainsPeerWithGivenIpV6(listResponse.ipv6s[i]))
+            file->addPeer(PeerInfo(file->getPeers().size() + 1, listResponse.ipv4s[i], listResponse.ipv6s[i], CLIENT_DEFAULT_PORT)); // todo change default port to port from response
+    syslogger->info("successfully updated peers for file {}", file->getTorrent().fileName);
     auto filePeers = file->getPeers();
     auto myPeers = std::vector<std::shared_ptr<PeerInfo>>();
     for (auto &w: workers)
         myPeers.emplace_back(w.getPeer());
     for (auto& fp: filePeers)
-        if (std::find(myPeers.begin(), myPeers.end(), fp) == myPeers.end())
+        if (!checkIfWorkersWorkWithPeer(myPeers, fp))
             startWorkerThreadForPeer(fp);
-    // todo smth with timeouted workers
 }
 
 void DownloadManager::startWorkerThreadForPeer(const std::shared_ptr<PeerInfo>& peer) {
     workers.emplace_back(DownloadWorker(database, file, peer, fileManager));
     worker_threads.emplace_back(workers.back().startWorker());
-    worker_threads.back().join();
     syslogger->info("DownloadManager added new worker for file {} for new peer {}", file->getId(), peer->getId());
     
 }
@@ -90,6 +87,11 @@ bool DownloadManager::checkIfFileContainsPeerWithGivenIpV6(IpV4Address address) 
     return !(std::find_if(
             file->getPeers().begin(), file->getPeers().end(),
             [&](auto& x) { return x->getIpV6Address() == address;}) == file->getPeers().end());
+}
+bool DownloadManager::checkIfWorkersWorkWithPeer(std::vector<std::shared_ptr<PeerInfo>> myPeers, std::shared_ptr<PeerInfo> peer) {
+    return !(std::find_if(
+            myPeers.begin(), myPeers.end(),
+            [&](auto& x) { return x->getIpV6Address() == peer->getIpV6Address() || x->getIpV4Address() == peer->getIpV4Address();}) == myPeers.end());
 }
 
 DownloadManager::~DownloadManager() = default;

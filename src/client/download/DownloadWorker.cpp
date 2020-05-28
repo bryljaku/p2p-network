@@ -12,7 +12,7 @@ std::thread DownloadWorker::startWorker() {
             work();
             syslogger->info("DownloadWorker finished");
         } catch (std::exception &e) {
-            syslogger->error("DownloadWorker->{}\n{}", file->getPath(), e.what());
+            syslogger->error("Download Worker errored for torrent {}\n{}", torrent.hashed);
         }
         
     });

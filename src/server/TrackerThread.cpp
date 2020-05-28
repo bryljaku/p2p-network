@@ -19,7 +19,7 @@ void TrackerThread::respond(intptr_t connFd, TcpMessage *msg) {
 	} else if (code == CS_SEEDLIST_REQUEST) {	//TODO: jak na razie tylko test, ale dziala
 		response.set_code(CS_SEEDLIST_RESPONSE);
 		auto t = new SeedlistResponse;			// delete(t) not needed, Protobuf does it when freeing response
-		t->add_ipv4peers("TEST");
+		t->add_ipv4peers("172.28.1.2");
 		response.set_allocated_seedlistresponse(t);
 		syslogger->debug(response.SerializeAsString());
 		sendTcpMsg(connFd, &response);

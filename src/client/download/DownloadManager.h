@@ -44,6 +44,9 @@ public:
     bool checkIfFileContainsPeerWithGivenIpV4(IpV4Address address);
 
     bool checkIfFileContainsPeerWithGivenIpV6(IpV4Address address);
+
+
+    bool checkIfWorkersWorkWithPeer(std::vector<std::shared_ptr<PeerInfo>> myPeers, std::shared_ptr<PeerInfo> peer);
 };
 
 
