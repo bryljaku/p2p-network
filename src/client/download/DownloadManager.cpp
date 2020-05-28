@@ -53,9 +53,8 @@ void DownloadManager::manageWorkers() {
 void DownloadManager::updatePeers() {
     syslogger->info("DownloadManager updating peers for torrent {}", file->getTorrent().hashed);
     auto listResponse = sSocket.sendSeedlistRequest(file->getTorrent().hashed);
-    for (int i = 0; i < listResponse.ipv4s.size(); i++)
-        if (!checkIfFileContainsPeerWithGivenIpV4(listResponse.ipv4s[i]) || checkIfFileContainsPeerWithGivenIpV6(listResponse.ipv6s[i]))
-            file->addPeer(PeerInfo(file->getPeers().size() + 1, listResponse.ipv4s[i], listResponse.ipv6s[i], CLIENT_DEFAULT_PORT)); // todo change default port to port from response
+    addPeersToFile(listResponse);
+
     syslogger->info("successfully updated peers for file {}", file->getTorrent().fileName);
     auto filePeers = file->getPeers();
     auto myPeers = std::vector<std::shared_ptr<PeerInfo>>();
@@ -92,6 +91,21 @@ bool DownloadManager::checkIfWorkersWorkWithPeer(std::vector<std::shared_ptr<Pee
     return !(std::find_if(
             myPeers.begin(), myPeers.end(),
             [&](auto& x) { return x->getIpV6Address() == peer->getIpV6Address() || x->getIpV4Address() == peer->getIpV4Address();}) == myPeers.end());
+}
+
+void DownloadManager::addPeersToFile(const SeedlistResponse& response) {
+    for (auto i: response.ipv6peers())
+        if (checkIfFileContainsPeerWithGivenIpV6(i.ip()))
+            file->addPeer(PeerInfo(file->getPeers().size() + 1, "", i.ip(), i.port()));
+    for (auto i: response.ipv6seeds())
+        if (checkIfFileContainsPeerWithGivenIpV6(i.ip()))
+            file->addPeer(PeerInfo(file->getPeers().size() + 1, "", i.ip(), i.port()));
+    for (auto i: response.ipv4seeds())
+        if (checkIfFileContainsPeerWithGivenIpV4(i.ip()))
+            file->addPeer(PeerInfo(file->getPeers().size() + 1, i.ip(), "", i.port()));
+    for (auto i: response.ipv4peers())
+        if (checkIfFileContainsPeerWithGivenIpV4(i.ip()))
+            file->addPeer(PeerInfo(file->getPeers().size() + 1, i.ip(),"", i.port()));
 }
 
 DownloadManager::~DownloadManager() = default;
