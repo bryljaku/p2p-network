@@ -7,7 +7,8 @@
 
 #include <utility>
 #include <Torrent.h>
-#include <src/client/file/FileManager.h>
+#include <file/FileManager.h>
+#include <networking/SSocket.h>
 #include "DownloadWorker.h"
 
 // manages workers for one resource
@@ -17,12 +18,13 @@ class DownloadManager {
     std::shared_ptr<Database> database;
     std::shared_ptr<File> file;
     FileManager& fileManager;
+    SSocket sSocket;
     std::vector<DownloadWorker> workers;
     std::vector<std::thread> worker_threads;
 public:
 
-    DownloadManager(std::shared_ptr<Database> database1, std::shared_ptr<File> file1, FileManager& fileManager1)
-    :database(std::move(database1)), file(std::move(file1)), fileManager(fileManager1) {
+    DownloadManager(std::shared_ptr<Database> database1, std::shared_ptr<File> file1, FileManager& fileManager1, SSocket &sSocket)
+    :database(std::move(database1)), file(std::move(file1)), fileManager(fileManager1), sSocket(sSocket) {
         syslogger->info("DownloadManager for file {} created", file->getId());
     }
     
@@ -38,6 +40,15 @@ public:
     bool checkIfWorkersWork();
     
     void startWorkerThreadForPeer(const std::shared_ptr<PeerInfo>& peer);
+
+    bool checkIfFileContainsPeerWithGivenIpV4(IpV4Address address);
+
+    bool checkIfFileContainsPeerWithGivenIpV6(IpV4Address address);
+
+
+    bool checkIfWorkersWorkWithPeer(std::vector<std::shared_ptr<PeerInfo>> myPeers, std::shared_ptr<PeerInfo> peer);
+
+    void addPeersToFile(const SeedlistResponse& response);
 };
 
 

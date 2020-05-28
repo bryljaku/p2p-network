@@ -5,16 +5,16 @@
 #include "spdlog/sinks/syslog_sink.h"
 #include "ClientInfo.h"
 #include "Torrent.h"
+#include <sharedUtils.h>
 
 class Database {
     std::vector<ClientInfo> clients;
     std::vector<Torrent> torrents;
 public:
-    std::vector<IpV4Address> getIpV4AddressesForFilename(const Filename& filename);		//TODO moze lepiej nie leciec po filename tylko po Torrent
-    std::vector<IpV6Address> getIpV6AddressesForFilename(const Filename& filename);
+    std::vector<ClientInfo> getClientInfoForTorrentHash(Hash torrentHash);
     
     std::vector<ClientInfo> getClients();
-    void addClient(ClientInfo clientInfo);
+    void addOrUpdateClient(ClientInfo clientInfo);
     void deleteClient(const Id& clientId);
 
     bool isHashUnique(size_t hash);

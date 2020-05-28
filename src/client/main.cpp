@@ -63,7 +63,8 @@ void test() {
 	File file  = File(testTorrent, "./path");
 	file.addPeer(PeerInfo(1, CLIENT_SEED_TEST_ADDRESS, "", CLIENT_DEFAULT_PORT));
 	database->addFile(file);
-	DownloadManager manager(database, database->getFile(1337), fileManager);
+	SSocket sSocket(TRACKER_ADDRESS, TRACKER_PORT);
+	DownloadManager manager(database, database->getFile(1337), fileManager, sSocket);
 	auto mngThread = manager.start_manager();
 	mngThread.join();
 

@@ -21,7 +21,8 @@ class File {
     std::vector<std::shared_ptr<PeerInfo>> peers;
     uint8_t *dataBegin;
     uint8_t *dataEnd;
-    std::vector<std::mutex *> my_mutexes;
+//    mutable std::mutex segmentDownloadStateCheckMutex;
+
 public:
     File(const Torrent& torrent, std::string path);
     bool isComplete();
@@ -42,6 +43,7 @@ public:
 
 private:
     void generateSegments();
+
 };
 
 

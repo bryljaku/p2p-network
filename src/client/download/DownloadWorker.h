@@ -5,7 +5,7 @@
 #include <thread>
 #include <utility>
 #include <database/Database.h>
-#include <src/client/file/FileManager.h>
+#include <file/FileManager.h>
 
 #include <Torrent.h>
 #include <networking/CSocket.h>

@@ -9,9 +9,6 @@
 #include "sharedUtils.h"
 #include "TrackerThread.h"
 
-#define SERVER_DEFAULT_PORT 59095
-#define SOCKET_DEFAULT_TIMEOUT 5	// in seconds TODO: zmienic na wyzszy timeout, bo tak to wywala klientow zaraz
-
 
 void * runTrackerThread(void * args) {
 	intptr_t connFd = (uintptr_t) args;

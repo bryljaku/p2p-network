@@ -12,7 +12,7 @@ std::thread DownloadWorker::startWorker() {
             work();
             syslogger->info("DownloadWorker finished");
         } catch (std::exception &e) {
-            syslogger->error("DownloadWorker->{}\n{}", file->getPath(), e.what());
+            syslogger->error("Download Worker errored for torrent {}\n{}", torrent.hashed);
         }
         
     });
@@ -20,6 +20,13 @@ std::thread DownloadWorker::startWorker() {
 
 void DownloadWorker::work() {
     std::string peerIp = peer->getIpV4Address();
+    if (peerIp.empty())
+        peerIp = peer->getIpV6Address();
+    if (peerIp.empty()) {
+        syslogger->error("Peer without address");
+        finished = true;
+        return;
+    }
     auto peerPort = peer->getPort();
     CSocket peerSocket(peerIp, peerPort);
     auto state = peerSocket.start();

@@ -2,32 +2,15 @@
 // created by Jakub
 #include <utility>
 
-std::vector<IpV4Address> Database::getIpV4AddressesForFilename(const Filename& filename) {
-    std::vector<IpV4Address> ipV4Addresses = std::vector<IpV4Address>();
-    for(auto &i : clients)
-        if(i.checkIfHasFile(filename))
-            ipV4Addresses.push_back(i.getIpV4Address());
-        
-    return ipV4Addresses;
-}
 
-std::vector<IpV6Address> Database::getIpV6AddressesForFilename(const Filename &filename) {
-    std::vector<IpV6Address> ipV6Addresses = std::vector<IpV6Address>();
-    for(auto &i : clients)
-        if(i.checkIfHasFile(filename))
-            ipV6Addresses.push_back(i.getIpV6Address());
-    
-    return ipV6Addresses;
-}
-void Database::addClient(ClientInfo clientInfo) { // todo
+void Database::addOrUpdateClient(ClientInfo clientInfo) {
     for (auto& c: clients)
         if (clientInfo.getIpV4Address() == c.getIpV4Address() || c.getIpV6Address() == clientInfo.getIpV6Address()) {
-            c.setFilesToShare(clientInfo.getFilesToShare());
+            c.setFilesToShare(clientInfo.getHashesToShare());
             return;
         }
     clients.emplace_back(clientInfo);
 }
-
 void Database::deleteClient(const Id& clientId) {
     auto oldSize = clients.size();
     std::vector<ClientInfo>::iterator new_end;
@@ -46,11 +29,10 @@ std::vector<ClientInfo> Database::getClients() {
 }
 
 bool Database::isHashUnique(size_t hash) {
-	for(auto torrent : torrents) {
-		if (torrent.hashed == hash) {
+	for(const auto& torrent : torrents)
+	    if (torrent.hashed == hash)
 			return false;
-		}
-	}
+		
 	return true;
 }
 
@@ -65,5 +47,17 @@ size_t Database::addTorrent(Torrent t) {
 	torrents.push_back(t);
 
 	return t.hashed;
+}
+
+std::vector<ClientInfo> Database::getClientInfoForTorrentHash(Hash torrentHash) {
+    std::vector<ClientInfo> clientsToReturn;
+    for (auto i: clients)
+        if (i.checkIfSharesTorrent(torrentHash))
+            clientsToReturn.emplace_back(i);
+
+    if (clientsToReturn.empty())
+        syslogger->warn("no peers for torrent {}", torrentHash);
+    return clientsToReturn;
+
 }
 

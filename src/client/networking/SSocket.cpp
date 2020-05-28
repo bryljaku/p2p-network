@@ -38,7 +38,7 @@ uint64_t SSocket::sendNewTorrentRequest(Torrent torrent) {
 	return 0;
 }
 
-Ips SSocket::sendSeedlistRequest(uint64_t hashedTorrent) {
+SeedlistResponse SSocket::sendSeedlistRequest(uint64_t hashedTorrent) {
 	TcpMessage t;
 	t.set_code(TcpCode::CS_SEEDLIST_REQUEST);
 	auto n = new SeedlistRequest;
@@ -49,11 +49,11 @@ Ips SSocket::sendSeedlistRequest(uint64_t hashedTorrent) {
 	if(state == SENT) {
 		receive();
 		if(state == RECVD && lastMsg.code()==CS_SEEDLIST_RESPONSE) {
-			syslogger->debug(lastMsg.seedlistresponse().ipv4peers()[0]); //TODO usunac bo test
-			// TODO: zrobic strukture Ips z tych otrzymanych adresow
+			syslogger->info(lastMsg.seedlistresponse().ipv4peers().Get(0).ip());
+			return lastMsg.seedlistresponse();
 		}
 	}
-	return Ips();
+	return SeedlistResponse();
 }
 
 SSocket::SSocket(std::string trackerIp, uint trackerPort) : BaseSocket(trackerIp, trackerPort) {
