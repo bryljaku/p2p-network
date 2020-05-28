@@ -1,6 +1,8 @@
 #include "FileManager.h"
 #include <sharedUtils.h>
 
+FileManager::FileManager() {
+}
 
 FileManager::FileManager(std::shared_ptr<Database> database) : database(std::move(database))  {
 }
@@ -28,7 +30,6 @@ void FileManager::storeFile(std::shared_ptr<File> file) {
 		return;
 	}
 
-	//TODO?
 	char* fileContents = reinterpret_cast<char *>(file->getDataBegin());
 
 	fileStream.seekp(0);
@@ -87,7 +88,7 @@ void FileManager::storeSegmentToFile(const Filename fileName, const std::string 
 // 	return false;
 // }
 
-void FileManager::createLocalFileAndAddToDB(Torrent& torrent, Id fileId, std::string path) {
+void FileManager::createLocalFile(Torrent& torrent, std::string path) {
 	std::ofstream fileCreator(torrent.fileName, std::ios::binary);
 
 	char byteValue = '\0';
@@ -95,16 +96,16 @@ void FileManager::createLocalFileAndAddToDB(Torrent& torrent, Id fileId, std::st
 
 	fileCreator.close();
 
-	database->addFile(File(torrent, path));
+	syslogger->info("File Manager created file at '{}./{}'", path, torrent.fileName);
 }
 
 // void FileManager::addFile(Id id, Filename name, int size, std::string path) {
 // 	files.push_back(File(id, name, size, path));
 // }
 
-uint8_t* FileManager::getSegment(const Filename fileName, Id segmentId, const std::size_t segmentSize) {
+char* FileManager::getSegment(const Filename fileName, Id segmentId, const std::size_t segmentSize) {
 	if (segmentSize > DEFAULTSEGMENTSIZE) {
-		//log error - requested size too big
+		syslogger->error("File Manager couldn't get requested segment - size too big, segment size = {}", DEFAULTSEGMENTSIZE);
 		return nullptr;
 	}
 
@@ -119,26 +120,26 @@ uint8_t* FileManager::getSegment(const Filename fileName, Id segmentId, const st
 	readLockMutex.unlock();
 
 	if (!of->stream.is_open()) {
-		//log error - read failed
+		syslogger->error("File Manager couldn't read the file '{}'", fileName);
 		return nullptr;
 	}
 
 	of->stream.seekg(segmentId * DEFAULTSEGMENTSIZE);
 	if (of->stream.tellg() != segmentId * DEFAULTSEGMENTSIZE) {
-		//log setting position error
+		syslogger->error("File Manager couldn't set reading position inside file '{}'", fileName);
 		return nullptr;
 	}
 
-	uint8_t* buffer = static_cast<uint8_t *>(malloc(DEFAULTSEGMENTSIZE)); // not totally sure about that
+	char* buffer = static_cast<char*>(malloc(DEFAULTSEGMENTSIZE)); // not totally sure about that
 	if (buffer == nullptr) {
-		//log error
+		syslogger->error("File Manager couldn't create buffer for file '{}'", fileName);
 		return nullptr;
 	}
 
 	of->stream.read(reinterpret_cast<char *>(buffer), segmentSize);
 
 	if (!of->stream || (of->stream.eof() && !of->stream.fail())) {
-		//log error
+		syslogger->error("File Manager couldn't read from file '{}'", fileName);
 		return nullptr;
 	}
 
@@ -165,7 +166,6 @@ bool FileManager::readLock(const Filename fileName){
 			}
 		}
 	
-
 		if (isLocked) {
 			writeLockMutex.unlock();
 			{

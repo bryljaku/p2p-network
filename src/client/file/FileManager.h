@@ -9,6 +9,7 @@
 #include <condition_variable>
 #include <vector>
 #include <utility>
+#include <sharedUtils.h>
 #include "Segment.h"
 #include "File.h"
 #include "GeneralTypes.h"
@@ -34,15 +35,16 @@ class FileManager
   	std::condition_variable condVariable;
 
 public:
+	FileManager();
 	FileManager(std::shared_ptr<Database> database);
 	~FileManager();
 
 	void storeFile(std::shared_ptr<File> file); //stores COMPLETE file
 	void storeSegmentToFile(const Filename fileName, const std::string path, const Id segmentId, const std::string& segmentData);
-	uint8_t* getSegment(const Filename fileName, const Id segmentId, const std::size_t segmentSize);
+	char* getSegment(const Filename fileName, const Id segmentId, const std::size_t segmentSize = DEFAULTSEGMENTSIZE);
 	//void addFile(Id id, Filename name, int size, std::string path);
 	//bool fileExists(const Filename fileName);
-	void createLocalFileAndAddToDB(Torrent& torrent, Id fileId, std::string path = "./"); //create BINARY file from given Torrent
+	void createLocalFile(Torrent& torrent, std::string path = "./"); //create BINARY file from given Torrent
 
 	bool readLock(const Filename fileName);
   	void readUnlock(const Filename fileName);

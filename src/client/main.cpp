@@ -16,6 +16,9 @@
 #define CLIENT_DEFAULT_PORT 59096
 #define LISTENER_DEFAULT_TIMEOUT 5;
 #define CLIENT_SEED_TEST_ADDRESS "172.28.1.2"
+
+void runMenu();
+
 void * runResponderThread(void * arg) {
 	intptr_t connFd = (uintptr_t) arg;
 	ResponderThread res;
@@ -87,12 +90,16 @@ int main(int argc, char *argv[]) {
 	syslogger->info("p2p client starting");
 
 	int port = CLIENT_DEFAULT_PORT;
+	std::string trackerIp = TRACKER_ADDRESS;
+	//int trackerPort = TRACKER_PORT;
+
 	bool doTest = true;
 
 	Database db;
 
-	for(;;) {
-		switch(getopt(argc, argv, "sp:a:")) {
+	int option;
+	while((option = getopt(argc, argv, ":p:sa:t:a:")) != -1) {
+    	switch(option) {
 			case 'p': {
 				int potentialPort = (int) strtol(optarg, nullptr, 10);
 				if(potentialPort<1024 || potentialPort>65535) {
@@ -100,11 +107,11 @@ int main(int argc, char *argv[]) {
 					exit(1);
 				}
 				port = potentialPort;
-				continue;
+				break;
 			}
 			case 's':
 				doTest = false;
-				continue;
+				break;
 			case 'a': {
 				int result = addTorrentFile(db, optarg);
 				if (result == 0) {
@@ -112,19 +119,39 @@ int main(int argc, char *argv[]) {
 				} else if (result == 1) {
 					std::cout << "Can't open such a file";
 				}
-				continue;
-			}
-			case -1:
 				break;
+			}
+			case 't': {
+				trackerIp = optarg;
+				break;
+			}
+			case ':':
+            	printf("option needs a value\n");
+            	break;
+         	case '?': //used for some unknown options
+            	printf("unknown option: %c\n", optopt);
+            	break;
 		}
-		break;
 	}
+
+	for(; optind < argc; optind++){ //when some extra arguments are passed
+    	printf("Given extra arguments: %s\n", argv[optind]);
+    }
 
 	if(doTest) {
 		test();
 	}
 
+	//runMenu();
 	connListen(port);
 
 	return 0;
+}
+
+void runMenu() {
+	printf("___ Welcome to Concrete Torrent ___ \n\n");
+	printf("Choose option: \n");
+	printf("1. Add torrent to DB\n");
+	printf("2. Create new local file\n");
+	printf("3. Request download\n");
 }
