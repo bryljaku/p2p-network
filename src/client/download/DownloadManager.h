@@ -7,8 +7,8 @@
 
 #include <utility>
 #include <Torrent.h>
-#include <src/client/file/FileManager.h>
-#include <src/client/networking/SSocket.h>
+#include <file/FileManager.h>
+#include <networking/SSocket.h>
 #include "DownloadWorker.h"
 
 // manages workers for one resource

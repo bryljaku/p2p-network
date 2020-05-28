@@ -56,17 +56,22 @@ message SeedlistRequest {
     uint64 hashedTorrent = 1;
 }
 
+message IpPort {
+    string ip = 1;
+    uint32 port = 2;
+}
+
 message SeedlistResponse {
 	uint64 hashedTorrent = 1;
-    repeated string ipV4Seeds = 2;
-    repeated string ipV4Peers = 3;
-    repeated string ipV6Seeds = 4;
-    repeated string ipV6Peers = 5;
+    repeated IpPort ipV4Seeds = 2;
+    repeated IpPort ipV4Peers = 3;
+    repeated IpPort ipV6Seeds = 4;
+    repeated IpPort ipV6Peers = 5;
 }
 
 message ClientUnavailable {				// wysylane co jakis czas do trackerow, jak zbierzemy liste niedostepnych
     repeated string ipV4Addresses = 1;
-    repeated string ipV6Addresses = 2;
+    repeated string ipV6Addresses = 3;
 }
 
 message ImASeed {			// powiadamiamy trackera, ze mamy juz caly plik pobrany

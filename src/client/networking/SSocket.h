@@ -17,7 +17,7 @@ public:
 // TCP COMMUNICATION
 	TcpCode sendOk();			// expected result: OK from server
 	uint64_t sendNewTorrentRequest(Torrent torrent);	// returns 0 if adding was unsuccessful
-	Ips sendSeedlistRequest(uint64_t hashedTorrent);
+	SeedlistResponse sendSeedlistRequest(uint64_t hashedTorrent);
 	// no response required:
 	void sendImSeed(Torrent torrent);
 	void sendClientUnavailable(Ips ips);
