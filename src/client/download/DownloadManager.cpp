@@ -13,7 +13,6 @@ std::thread DownloadManager::start_manager() {
     });
 }
 
-
 void DownloadManager::joinWorkers() {
     for (auto &w: worker_threads)
         w.join();
@@ -27,7 +26,7 @@ void DownloadManager::createWorkers() {
         throw::std::runtime_error("No peers possesing file");
     
     for (auto& peer: peers)
-        workers.push_back(DownloadWorker(database, file, peer, fileManager));
+        workers.emplace_back(database, file, peer, fileManager);
     syslogger->info("DownloadManager created workers for file {}", file->getId());
 }
 
@@ -46,13 +45,19 @@ void DownloadManager::manageWorkers() {
             return;
         }
         updatePeers();
-        // todo - check if there are any problems with workers
         syslogger->info("Manager check");
-        sleep(5);
+        sleep(30);
     }
 }
 void DownloadManager::updatePeers() {
-    // add new workers for new peers
+    auto listResponse = sSocket.sendSeedlistRequest(file->getTorrent().hashed);
+    for (auto i: listResponse.ipv4s)
+        if (!checkIfFileContainsPeerWithGivenIpV4(i))
+            file->addPeer(PeerInfo(file->getPeers().size(),i, "", CLIENT_DEFAULT_PORT));
+    for (auto i: listResponse.ipv6s)
+        if (!checkIfFileContainsPeerWithGivenIpV6(i))
+            file->addPeer(PeerInfo(file->getPeers().size(), "", i, CLIENT_DEFAULT_PORT));
+
     auto filePeers = file->getPeers();
     auto myPeers = std::vector<std::shared_ptr<PeerInfo>>();
     for (auto &w: workers)
@@ -76,7 +81,16 @@ bool DownloadManager::checkIfWorkersWork() {
             return true;
     return false;
 }
-
-DownloadManager::~DownloadManager() {
+bool DownloadManager::checkIfFileContainsPeerWithGivenIpV4(IpV4Address address) {
+    return !(std::find_if(
+            file->getPeers().begin(), file->getPeers().end(),
+            [&](auto& x) { return x->getIpV4Address() == address;}) == file->getPeers().end());
 }
+bool DownloadManager::checkIfFileContainsPeerWithGivenIpV6(IpV4Address address) {
+    return !(std::find_if(
+            file->getPeers().begin(), file->getPeers().end(),
+            [&](auto& x) { return x->getIpV6Address() == address;}) == file->getPeers().end());
+}
+
+DownloadManager::~DownloadManager() = default;
 

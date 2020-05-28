@@ -28,7 +28,6 @@ File::File(const Torrent& torrent, std::string path) {
     this->size = torrent.size;
     this->torrent = torrent;
     this->path = std::move(path);
-
     peers = std::vector<std::shared_ptr<PeerInfo>>();
     generateSegments();
     numOfSegments = segments.size();
