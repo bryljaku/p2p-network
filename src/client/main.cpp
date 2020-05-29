@@ -3,6 +3,8 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <sharedUtils.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "networking/ResponderThread.h"
 #include "download/DownloadManager.h"
 #include "networking/CSocket.h"
@@ -18,6 +20,7 @@
 #define CLIENT_SEED_TEST_ADDRESS "172.28.1.2"
 
 void runMenu();
+void createFile(Filename fileName);
 
 void * runResponderThread(void * arg) {
 	intptr_t connFd = (uintptr_t) arg;
@@ -112,15 +115,15 @@ int main(int argc, char *argv[]) {
 			case 's':
 				doTest = false;
 				break;
-			case 'a': {
-				int result = addTorrentFile(db, optarg);
-				if (result == 0) {
-					std::cout << "Added torrent file successfully";
-				} else if (result == 1) {
-					std::cout << "Can't open such a file";
-				}
-				break;
-			}
+			// case 'a': {
+			// 	int result = addTorrentFile(db, optarg);
+			// 	if (result == 0) {
+			// 		std::cout << "Added torrent file successfully";
+			// 	} else if (result == 1) {
+			// 		std::cout << "Can't open such a file";
+			// 	}
+			// 	break;
+			// }
 			case 't': {
 				trackerIp = optarg;
 				break;
@@ -139,19 +142,100 @@ int main(int argc, char *argv[]) {
     }
 
 	if(doTest) {
-		test();
+		//test();
 	}
 
-	//runMenu();
-	connListen(port);
+	runMenu();
+	//connListen(port);
 
 	return 0;
 }
 
 void runMenu() {
-	printf("___ Welcome to Concrete Torrent ___ \n\n");
-	printf("Choose option: \n");
-	printf("1. Add torrent to DB\n");
-	printf("2. Create new local file\n");
-	printf("3. Request download\n");
+	bool end = false;
+
+	while (!end) {
+		printf("___________________________________ \n");
+		printf("___ Welcome to Concrete Torrent ___ \n\n");
+		printf("1. Add torrent file\n");
+		printf("2. Create new local file\n");
+		printf("3. Request download\n");
+		printf("4. QUIT\n");
+		printf("Choose option: ");
+
+		int choice;
+		
+		for(;;) {
+			std::cin >> choice;
+			if (std::cin.fail()) {
+				fprintf(stderr, "\nWrong input! Choose option: ");
+				continue;
+			}
+			break;
+		}
+	
+
+		switch (choice) {
+			case 1: {
+				Database db; // dummy
+				Filename fileName;
+
+				printf("Enter file name to add: ");
+				std::cin >> fileName;
+				if (!std::cin.fail()){
+					// int result = addTorrentFile(db, fileName); // db?
+					// if (result == 0) {
+					// 	printf("Added torrent file successfully\n");
+					// } else if (result == 1) {
+					// 	printf("Can't open such a file\n");
+					// }
+					std::cout << "ADDED: " << fileName << "\n";
+				} else {
+					fprintf(stderr, "Wrong file name\n");
+				}
+
+				break;
+			}
+			case 2: {
+				Filename fileName;
+
+				printf("Enter file name to create: ");
+				std::cin >> fileName;
+				if (!std::cin.fail()){
+					//createFile(fileName);	
+					std::cout << "CREATED: " << fileName << "\n";
+				} else {
+					fprintf(stderr, "Wrong file name\n");
+				}
+
+				break;
+			}
+			case 3: {
+				Filename torrentFileName;
+
+				printf("Enter torrent file name: ");
+				std::cin >> torrentFileName;
+				if (!std::cin.fail()){
+					//request that file TODO
+					std::cout << "REQUESTED: " << torrentFileName << "\n";
+				} else {
+					fprintf(stderr, "Wrong file name\n");
+				}
+
+				break;
+			}
+			case 4: {
+				end = true;
+				printf("\nGood Bye :)\n");
+				break;
+			}
+		}
+	}
+}
+
+void createFile(Filename fileName) {
+	FileManager fm;
+
+	Torrent torrent(std::move(fileName));
+	fm.createLocalFile(torrent); // should be integrated with DB somehow?
 }
