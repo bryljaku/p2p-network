@@ -5,8 +5,8 @@
 
 void Database::addOrUpdateClient(ClientInfo clientInfo) {
     for (auto& c: clients)
-        if (clientInfo.getIpV4Address() == c.getIpV4Address() || c.getIpV6Address() == clientInfo.getIpV6Address()) {
-            c.setFilesToShare(clientInfo.getHashesToShare());
+        if (clientInfo.getAddress() == c.getAddress()) {
+            c.setTorrents(clientInfo.getTorrents());
             return;
         }
     clients.emplace_back(clientInfo);
@@ -49,14 +49,14 @@ size_t Database::addTorrent(Torrent t) {
 	return t.hashed;
 }
 
-std::vector<ClientInfo> Database::getClientInfoForTorrentHash(Hash torrentHash) {
+std::vector<ClientInfo> Database::getClientsWith(Torrent torrent) {
     std::vector<ClientInfo> clientsToReturn;
     for (auto i: clients)
-        if (i.checkIfSharesTorrent(torrentHash))
+        if (i.hasTorrent(torrent))
             clientsToReturn.emplace_back(i);
 
     if (clientsToReturn.empty())
-        syslogger->warn("no peers for torrent {}", torrentHash);
+        syslogger->warn("no peers for torrent {}", torrent.hashed);
     return clientsToReturn;
 
 }

@@ -11,8 +11,8 @@ class Database {
     std::vector<ClientInfo> clients;
     std::vector<Torrent> torrents;
 public:
-    std::vector<ClientInfo> getClientInfoForTorrentHash(Hash torrentHash);
-    
+    std::vector<ClientInfo> getClientsWith(Torrent torrent);
+
     std::vector<ClientInfo> getClients();
     void addOrUpdateClient(ClientInfo clientInfo);
     void deleteClient(const Id& clientId);
