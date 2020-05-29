@@ -52,7 +52,7 @@ void DownloadManager::manageWorkers() {
 }
 void DownloadManager::updatePeers() {
     syslogger->info("DownloadManager updating peers for torrent {}", file->getTorrent().hashed);
-	SSocket sSocket(trackerAddress.ip, trackerAddress.port);
+	SSocket sSocket(trackerAddress.ip, trackerAddress.port);	//TODO: tu lepiej w wątkach, bo może chwile wisieć na połączeniu
 	auto state = sSocket.start();
 	if (state != OPEN) {
 		syslogger->warn("DownloadManager problem occured while connecting to {}:{}", trackerAddress.ip, trackerAddress.port);
