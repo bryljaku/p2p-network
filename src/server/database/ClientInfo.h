@@ -21,15 +21,18 @@ struct IpAddress {
 };
 
 class ClientInfo {
-	Id id;
 	bool isIpV4;
 	IpAddress address;
 	std::vector<Torrent> torrents;
 
 
 public:
-	ClientInfo(Id id, bool isIpV4, IpAddress address, std::vector<Torrent> torrents) {
-		this->id = id;
+	ClientInfo(bool isIpV4, IpAddress address) {
+		this->isIpV4 = isIpV4;
+		this->address = std::move(address);
+	}
+
+	ClientInfo(bool isIpV4, IpAddress address, std::vector<Torrent> torrents) {
 		this->isIpV4 = isIpV4;
 		this->address = std::move(address);
 		this->torrents = std::move(torrents);
@@ -38,23 +41,29 @@ public:
 	void setTorrents(std::vector<Torrent> newTorrents) {
 		this->torrents = std::move(newTorrents);
 	}
+
 	std::vector<Torrent> getTorrents() {
 		return this->torrents;
 	}
 
-	bool hasTorrent(Torrent torrent) {
+	bool hasTorrent(Torrent torrent) const {
 		for(auto& i: torrents)
 			if(i.hashed == torrent.hashed)
 				return true;
 		return false;
 	}
-	IpAddress getAddress() {
+
+	bool hasTorrent(Hash hash) const {
+		for(auto& i: torrents)
+			if(i.hashed == hash)
+				return true;
+		return false;
+	}
+
+	IpAddress getAddress() const {
 		return address;
 	}
-	Id getId() const {
-		return id;
-	}
-	bool getIsIpV4() {
+	bool getIsIpV4() const {
 		return isIpV4;
 	}
 	void addTorrent(const Torrent& torrent) {
@@ -64,6 +73,10 @@ public:
 	}
 	void deleteFileToShare(const Torrent& filename) {
 		torrents.erase(std::remove(torrents.begin(), torrents.end(), filename), torrents.end());
+	}
+
+	bool operator==(const ClientInfo& other) const {
+		return this->getAddress()==other.getAddress() && this->getIsIpV4()==other.getIsIpV4();
 	}
 };
 

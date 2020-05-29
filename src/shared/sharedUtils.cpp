@@ -34,6 +34,13 @@ std::string getConnectedIp(intptr_t socketFd) {
 	return inet_ntoa(connectedAddress.sin_addr);
 }
 
+uint32_t getConnectedPort(intptr_t socketFd) {
+	struct sockaddr_in connectedAddress;
+	socklen_t peerLen = sizeof(connectedAddress);
+	getpeername(socketFd, (sockaddr*) &connectedAddress, &peerLen);
+	return connectedAddress.sin_port;
+}
+
 int sendTcpMsg(intptr_t socketFd, TcpMessage *msg) {
 	char outputBuf[msg->ByteSizeLong()];
 	msg->SerializeToArray(outputBuf, msg->ByteSizeLong());
