@@ -5,10 +5,7 @@ version: "3"
 networks:
   bittorrent-network:
     external: true
-#    ipam:
-#      driver: default
-#      config:
-#        - subnet: 172.28.0.0/16
+
 services:
   server:
     stdin_open: true
@@ -35,16 +32,16 @@ services:
       bittorrent-network:
           ipv4_address: 172.28.1.2
 
-  client:
-    stdin_open: true
-    tty: true
-    depends_on:
-      - server
-    build:
-      context: .
-      dockerfile: Dockerfile.client
-    image: bittorrent-client
-    networks:
-       bittorrent-network:
-          ipv4_address: 172.28.1.3
+#  client:
+#    stdin_open: true
+#    tty: true
+#    depends_on:
+#      - server
+#    build:
+#      context: .
+#      dockerfile: Dockerfile.client
+#    image: bittorrent-client
+#    networks:
+#       bittorrent-network:
+#          ipv4_address: 172.28.1.3
 
