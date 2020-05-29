@@ -1,6 +1,8 @@
 // created by Piotr
 #include "SSocket.h"
 
+uint32_t GLOB_responder_port;
+
 TcpCode SSocket::sendOk() {
 	TcpMessage t;
 	t.set_code(TcpCode::OK);
