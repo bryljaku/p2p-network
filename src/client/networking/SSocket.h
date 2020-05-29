@@ -8,7 +8,7 @@
 #include "sharedUtils.h"
 #include "BaseSocket.h"
 
-
+uint32_t GLOB_responder_port;
 
 // client - single tracker communication
 class SSocket : public BaseSocket {

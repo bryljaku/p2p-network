@@ -24,6 +24,7 @@ uint64_t SSocket::sendNewTorrentRequest(Torrent torrent) {
 	auto n = new NewRequest;
 	auto msg = torrent.toMsg();
 	n->set_allocated_torrentmsg(msg);
+	n->set_receiverport(GLOB_responder_port);
 	t.set_allocated_newrequest(n);
 	send(&t);
 
@@ -78,6 +79,7 @@ void SSocket::sendImSeed(Torrent torrent) {
 	t.set_code(CS_IM_A_SEED);
 	auto n = new ImASeed;
 	n->set_hashedtorrent(torrent.hashed);
+	n->set_receiverport(GLOB_responder_port);
 	t.set_allocated_imaseed(n);
 	send(&t);
 }
