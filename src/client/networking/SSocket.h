@@ -9,7 +9,6 @@
 #include "BaseSocket.h"
 
 
-
 // client - single tracker communication
 class SSocket : public BaseSocket {
 public:

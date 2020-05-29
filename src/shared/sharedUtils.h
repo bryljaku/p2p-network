@@ -13,6 +13,19 @@
 
 extern std::shared_ptr<spdlog::logger> syslogger;
 
+struct IpAddress {
+	std::string ip;
+	uint32_t port;
+
+	IpAddress() {
+		port = 0;
+	}
+	IpAddress(std::string ip, uint32_t port): ip(std::move(ip)), port(port) {};
+	bool operator==(const IpAddress& other) {
+		return this->ip == other.ip && this->port == other.port;
+	}
+};
+
 enum eSocketState {
 	ERROR,
 	CANNOT_CONNECT,
