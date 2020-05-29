@@ -4,59 +4,80 @@
 #include <utility>
 #include <vector>
 #include <string>
+#include <Torrent.h>
 #include "GeneralTypes.h"
 
+struct IpAddress {
+	std::string ip;
+	uint32_t port;
+
+	IpAddress() {
+		port = 0;
+	}
+	IpAddress(std::string ip, uint32_t port): ip(std::move(ip)), port(port) {};
+	bool operator==(const IpAddress& other) {
+		return this->ip == other.ip && this->port == other.port;
+	}
+};
+
 class ClientInfo {
-    Id id;
-    IpV4Address ipV4Address;
-    IpV6Address ipV6Address;
-    Port port;
-    std::vector<Hash> torrentHashesToShare;
+	bool isIpV4;
+	IpAddress address;
+	std::vector<Torrent> torrents;
 
 
 public:
-    ClientInfo(Id id, IpV4Address ipV4, IpV6Address ipV6, Port port, std::vector<Hash> hashes) {
-        this->id = id;
-        this->torrentHashesToShare = std::move(hashes);
-        this->ipV4Address = std::move(ipV4);
-        this->ipV6Address = std::move(ipV6);
-        this->port = port;
-    }
-    
-    void setFilesToShare(std::vector<Hash> newHashes) {
-        this->torrentHashesToShare = std::move(newHashes);
-    }
-    std::vector<Hash> getHashesToShare() {
-        return this->torrentHashesToShare;
-    }
-    
-    bool checkIfSharesTorrent(const Hash& hash) {
-        for(auto& i: torrentHashesToShare)
-            if(i == hash)
-                return true;
-        return false;
-    }
-    IpV4Address getIpV4Address() {
-        return ipV4Address;
-    }
-    const Id getId() const {
-        return id;
-    }
-    IpV6Address getIpV6Address() {
-        return ipV6Address;
-    }
-    Port getPort() {
-        return port;
-    }
+	ClientInfo(bool isIpV4, IpAddress address) {
+		this->isIpV4 = isIpV4;
+		this->address = std::move(address);
+	}
 
-    void addFileToShare(Hash hash) {
-        for (auto& f: torrentHashesToShare)
-            if (f == hash) return;
-        torrentHashesToShare.emplace_back(hash);
-    }
-    void deleteFileToShare(Hash hash) {
-        torrentHashesToShare.erase(std::remove(torrentHashesToShare.begin(), torrentHashesToShare.end(), hash), torrentHashesToShare.end());
-    }
+	ClientInfo(bool isIpV4, IpAddress address, std::vector<Torrent> torrents) {
+		this->isIpV4 = isIpV4;
+		this->address = std::move(address);
+		this->torrents = std::move(torrents);
+	}
+
+	void setTorrents(std::vector<Torrent> newTorrents) {
+		this->torrents = std::move(newTorrents);
+	}
+
+	std::vector<Torrent> getTorrents() {
+		return this->torrents;
+	}
+
+	bool hasTorrent(Torrent torrent) const {
+		for(auto& i: torrents)
+			if(i.hashed == torrent.hashed)
+				return true;
+		return false;
+	}
+
+	bool hasTorrent(Hash hash) const {
+		for(auto& i: torrents)
+			if(i.hashed == hash)
+				return true;
+		return false;
+	}
+
+	IpAddress getAddress() const {
+		return address;
+	}
+	bool getIsIpV4() const {
+		return isIpV4;
+	}
+	void addTorrent(const Torrent& torrent) {
+		for (auto& f: torrents)
+			if (f.hashed == torrent.hashed) return;
+		torrents.emplace_back(torrent);
+	}
+	void deleteFileToShare(const Torrent& filename) {
+		torrents.erase(std::remove(torrents.begin(), torrents.end(), filename), torrents.end());
+	}
+
+	bool operator==(const ClientInfo& other) const {
+		return this->getAddress()==other.getAddress() && this->getIsIpV4()==other.getIsIpV4();
+	}
 };
 
 #endif //P2P_NETWORK_CLIENTINFO_H

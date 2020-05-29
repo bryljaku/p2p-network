@@ -42,5 +42,6 @@ struct Ips {
 int guard(int r, const std::string& err);
 void initLogger(std::string ident);
 std::string getConnectedIp(intptr_t socketFd);
+uint32_t getConnectedPort(intptr_t socketFd);
 int sendTcpMsg(intptr_t connFd, TcpMessage *msg);
 #endif //P2P_NETWORK_LOGGER_H

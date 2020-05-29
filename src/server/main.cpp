@@ -9,16 +9,21 @@
 #include "sharedUtils.h"
 #include "TrackerThread.h"
 
+struct trackerThreadArgs {
+	uintptr_t connFd;
+	Database* db;
+};
 
 void * runTrackerThread(void * args) {
-	intptr_t connFd = (uintptr_t) args;
+	auto* tta = (trackerThreadArgs*) args;
 	TrackerThread t;
-	t.run(connFd);
+	t.run(tta->connFd, tta->db);
 }
 
 int main(int argc, char *argv[]) {
 	initLogger("p2p-server");
 	int port = SERVER_DEFAULT_PORT;
+	Database db;
 	for(;;) {
 		switch(getopt(argc, argv, "p:")) {
 			case 'p': {
@@ -56,7 +61,10 @@ int main(int argc, char *argv[]) {
         intptr_t conn_fd = guard(accept(socketFd, NULL, NULL), "Could not accept");
 //		setsockopt(conn_fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
         pthread_t thread_id;
-        int ret = pthread_create(&thread_id, NULL, runTrackerThread, (void*) conn_fd);
+        trackerThreadArgs args;
+        args.connFd = conn_fd;
+        args.db = &db;
+        int ret = pthread_create(&thread_id, NULL, runTrackerThread, (void*) &args);
         if (ret != 0) {
         	syslogger->error("Error from pthread: %d\n", ret); exit(1);
         }

@@ -1,7 +1,13 @@
 #include "TrackerThread.h"
 
-void TrackerThread::handleSeedNotification(uint64_t hashedTorrent) {
-	//TODO: dorobić
+void TrackerThread::handleSeedNotification(IpAddress address, uint64_t hashedTorrent) {
+	ClientInfo ci(true, address);
+	for(auto t : *db->torrentVector())  {
+		if(t.hashed == hashedTorrent) {
+			db->addTorrentToClient(ci, t);
+			return;
+		}
+	}
 }
 
 
@@ -16,30 +22,42 @@ void TrackerThread::respond(intptr_t connFd, TcpMessage *msg) {
 	if(code == OK) {
 		response.set_code(OK);
 		sendTcpMsg(connFd, &response);
-	} else if (code == CS_SEEDLIST_REQUEST) {	//TODO: jak na razie tylko test, ale dziala
+	} else if (code == CS_SEEDLIST_REQUEST) {
 		response.set_code(CS_SEEDLIST_RESPONSE);
 		auto t = new SeedlistResponse;			// delete(t) not needed, Protobuf does it when freeing response
 
-		IpPort *testIp1 = t->add_ipv4peers();
-		IpPort *testIp2 = t->add_ipv4peers();
-		testIp1->set_ip("127.0.0.1");
-		testIp1->set_port(123);
-		testIp2->set_ip("192.168.0.1");
-		testIp2->set_port(8000);
+		std::vector<ClientInfo> res = db->getClientsWith(msg->seedlistrequest().hashedtorrent());
+		for(auto c : res) {
+			if(c.getIsIpV4()) {
+				IpPort *ipport = t->add_ipv4peers();
+				ipport->set_ip(c.getAddress().ip);
+				ipport->set_port(c.getAddress().port);
+			} else {
+				IpPort *ipport = t->add_ipv6peers();
+				ipport->set_ip(c.getAddress().ip);
+				ipport->set_port(c.getAddress().port);
+			}
+		}
 
 		response.set_allocated_seedlistresponse(t);
-		syslogger->debug(response.SerializeAsString());
 		sendTcpMsg(connFd, &response);
 	} else if (code == CS_NEW_REQUEST) {
-		Torrent newTorrent(msg->newrequest().torrentmsg());	//TODO: jeszcze musimy dodac do bazy danych
+		Torrent newTorrent(msg->newrequest().torrentmsg());
 		newTorrent.genDefaultHash();
+
+		db->addTorrent(newTorrent);
+		ClientInfo ci(true, IpAddress(getConnectedIp(connFd), getConnectedPort(connFd)));
+		db->addTorrentToClient(ci, newTorrent);
+
 		response.set_code(CS_NEW_RESPONSE);
 		auto t = new NewResponse;
 		t->set_newhash(newTorrent.hashed);
+		t->set_filecode(FileCode::F_FINE);
 		response.set_allocated_newresponse(t);
 		sendTcpMsg(connFd, &response);
 	} else if (code == CS_IM_A_SEED) {
-		handleSeedNotification(msg->imaseed().hashedtorrent());
+		IpAddress ad(getConnectedIp(connFd), getConnectedPort(connFd));
+		handleSeedNotification(ad, msg->imaseed().hashedtorrent());
 	} else if (code == CS_CLIENT_UNAVAILABLE) {
 		Ips ips;
 		for(auto ip4 : msg->clientunavailable().ipv4addresses()) {
@@ -52,7 +70,8 @@ void TrackerThread::respond(intptr_t connFd, TcpMessage *msg) {
 	}
 }
 
-void * TrackerThread::run(intptr_t connFd) {
+void * TrackerThread::run(intptr_t connFd, Database* db) {
+	this->db = db;
 	std::string ipAddress = getConnectedIp(connFd);
 
 	syslogger->debug("thread: serving " + ipAddress);

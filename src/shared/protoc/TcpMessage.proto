@@ -76,7 +76,20 @@ message ClientUnavailable {				// wysylane co jakis czas do trackerow, jak zbier
 
 message ImASeed {			// powiadamiamy trackera, ze mamy juz caly plik pobrany
     uint64 hashedTorrent = 1;
+    uint32 receiverPort = 2;
 }
+
+message NewRequest {		// chcemy dodac nowy torrent
+    TorrentMessage torrentMsg = 1;
+    uint32 receiverPort = 2;
+}
+
+message NewResponse {		// wygenerowany nowy hash torrenta
+    FileCode fileCode = 1;
+    uint64 newHash = 2;
+}
+
+// CLIENT to CLIENT communication below
 
 message ListRequest {		// pytamy o posiadane fragmenty
     uint64 hashedTorrent = 1;
@@ -98,13 +111,4 @@ message FragmentResponse {	// odpowiadamy jednym fragmentem
     uint32 fragNum = 2;
     FileCode fileCode = 3;
     bytes fragment = 4;	// tutaj bajty fragmentu
-}
-
-message NewRequest {		// chcemy dodac nowy torrent
-    TorrentMessage torrentMsg = 1;
-}
-
-message NewResponse {		// wygenerowany nowy hash torrenta
-	FileCode fileCode = 1;
-    uint64 newHash = 2;
 }

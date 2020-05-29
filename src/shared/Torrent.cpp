@@ -79,3 +79,7 @@ void Torrent::setPath(std::string path) {
 	this->currentPath = std::move(path);
 }
 
+bool Torrent::operator==(const Torrent &other) {
+	return hashed == other.hashed && size == other.size && fileName == other.fileName;
+}
+
