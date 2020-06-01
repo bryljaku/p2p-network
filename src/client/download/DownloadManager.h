@@ -34,7 +34,7 @@ public:
     void startWorkers();
     void joinWorkers();
     
-    void updatePeers();
+    void updatePeersAndStartWorkers();
     
     bool checkIfWorkersWork();
     
@@ -48,6 +48,8 @@ public:
     bool checkIfWorkersWorkWithPeer(std::vector<std::shared_ptr<PeerInfo>> myPeers, std::shared_ptr<PeerInfo> peer);
 
     void addPeersToFile(const SeedlistResponse& response);
+
+	void startWorkersForNewPeers();
 };
 
 
