@@ -13,6 +13,19 @@
 
 extern std::shared_ptr<spdlog::logger> syslogger;
 
+struct IpAddress {
+	std::string ip;
+	uint32_t port;
+
+	IpAddress() {
+		port = 0;
+	}
+	IpAddress(std::string ip, uint32_t port): ip(std::move(ip)), port(port) {};
+	bool operator==(const IpAddress& other) {
+		return this->ip == other.ip && this->port == other.port;
+	}
+};
+
 enum eSocketState {
 	ERROR,
 	CANNOT_CONNECT,
@@ -42,5 +55,6 @@ struct Ips {
 int guard(int r, const std::string& err);
 void initLogger(std::string ident);
 std::string getConnectedIp(intptr_t socketFd);
+uint32_t getConnectedPort(intptr_t socketFd);
 int sendTcpMsg(intptr_t connFd, TcpMessage *msg);
 #endif //P2P_NETWORK_LOGGER_H

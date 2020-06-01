@@ -19,6 +19,8 @@
 #define LISTENER_DEFAULT_TIMEOUT 5;
 #define CLIENT_SEED_TEST_ADDRESS "172.28.1.2"
 
+extern uint32_t GLOB_responder_port;
+
 void runMenu();
 void createFile(Filename fileName);
 
@@ -29,6 +31,7 @@ void * runResponderThread(void * arg) {
 }
 
 void connListen(int port) {
+	GLOB_responder_port = port;
 	std::string portS  = std::to_string(port);
 	int socketFd = guard(socket(AF_INET, SOCK_STREAM, 0), "Could not create TCP listening socket");
 
@@ -66,8 +69,8 @@ void test() {
 	File file  = File(testTorrent, "./path");
 	file.addPeer(PeerInfo(1, CLIENT_SEED_TEST_ADDRESS, "", CLIENT_DEFAULT_PORT));
 	database->addFile(file);
-	SSocket sSocket(TRACKER_ADDRESS, TRACKER_PORT);
-	DownloadManager manager(database, database->getFile(1337), fileManager, sSocket);
+	IpAddress trackerAddress(TRACKER_ADDRESS, TRACKER_PORT);
+	DownloadManager manager(database, database->getFile(1337), fileManager, trackerAddress);
 	auto mngThread = manager.start_manager();
 	mngThread.join();
 

@@ -57,7 +57,7 @@ void ResponderThread::respond(intptr_t connFd, TcpMessage *msg) {
 				}
 			}
 		}
-		lr->set_filecode(F_FRAG_COMPLETE);		// TODO: complete jak wysylamy liste kompletnych, missing jak listę brakujacych
+		lr->set_filecode(F_FRAG_COMPLETE);
 		lr->set_hashedtorrent(msg->listrequest().hashedtorrent());
 		response.set_allocated_listresponse(lr);
 		sendTcpMsg(connFd, &response);
@@ -71,8 +71,8 @@ void ResponderThread::respond(intptr_t connFd, TcpMessage *msg) {
 					fr->set_filecode(F_FINE);
 					fr->set_fragnum(msg->fragmentrequest().fragnum());
 					fr->set_hashedtorrent(msg->mutable_fragmentrequest()->hashedtorrent());
-					//fr->set_fragment((const char*)s->getSegment(msg->fragmentrequest().fragnum()).getDataPtr());
-					fr->set_fragment((const char*) fm.getSegment(s->getTorrent().fileName, msg->fragmentrequest().fragnum()));
+					fr->set_fragment((const char*)s->getSegment(msg->fragmentrequest().fragnum()).getDataPtr());
+//					fr->set_fragment((const char*) fm.getSegment(s->getTorrent().fileName, msg->fragmentrequest().fragnum()));
 				}
 			}
 		}

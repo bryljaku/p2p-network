@@ -3,9 +3,7 @@
 // created by Jakub
 std::thread DownloadManager::start_manager() {
     return std::thread([&] {try {
-        updatePeers();
-        createWorkers();
-        startWorkers();
+        updatePeersAndStartWorkers();
         manageWorkers();
         joinWorkers();
     } catch (std::exception &e) {
@@ -20,23 +18,6 @@ void DownloadManager::joinWorkers() {
     syslogger->info("DownloadManager joined workers for file {}", file->getId());
 }
 
-void DownloadManager::createWorkers() {
-    auto peers = file->getPeers();
-    
-    if (peers.empty())
-        throw::std::runtime_error("No peers possesing file");
-    
-    for (auto& peer: peers)
-        workers.emplace_back(database, file, peer, fileManager);
-    syslogger->info("DownloadManager created workers for file {}", file->getId());
-}
-
-void DownloadManager::startWorkers() {
-    for (auto& w: workers)
-        worker_threads.push_back(w.startWorker());
-    syslogger->info("DownloadManager started workers for file {}", file->getId());
-    
-}
 
 
 void DownloadManager::manageWorkers() {
@@ -45,26 +26,35 @@ void DownloadManager::manageWorkers() {
             syslogger->info("Download completed for file {}", file->getPath());
             return;
         }
-        updatePeers();
+		updatePeersAndStartWorkers();
         syslogger->info("Manager check");
         sleep(30);
     }
 }
-void DownloadManager::updatePeers() {
+void DownloadManager::updatePeersAndStartWorkers() {
     syslogger->info("DownloadManager updating peers for torrent {}", file->getTorrent().hashed);
+	SSocket sSocket(trackerAddress.ip, trackerAddress.port);	//TODO: tu lepiej w wątkach, bo może chwile wisieć na połączeniu
+	auto state = sSocket.start();
+	if (state != OPEN) {
+		syslogger->warn("DownloadManager problem occured while connecting to {}:{}", trackerAddress.ip, trackerAddress.port);
+		return;
+	}
     auto listResponse = sSocket.sendSeedlistRequest(file->getTorrent().hashed);
     addPeersToFile(listResponse);
 
     syslogger->info("successfully updated peers for file {}", file->getTorrent().fileName);
-    auto filePeers = file->getPeers();
-    auto myPeers = std::vector<std::shared_ptr<PeerInfo>>();
-    for (auto &w: workers)
-        myPeers.emplace_back(w.getPeer());
-    for (auto& fp: filePeers)
-        if (!checkIfWorkersWorkWithPeer(myPeers, fp))
-            startWorkerThreadForPeer(fp);
+	startWorkersForNewPeers();
 }
-
+void DownloadManager::startWorkersForNewPeers()
+{
+	auto filePeers = file->getPeers();
+	auto myPeers = std::vector<std::shared_ptr<PeerInfo>>();
+	for (auto &w: workers)
+		myPeers.emplace_back(w.getPeer());
+	for (auto& fp: filePeers)
+		if (!checkIfWorkersWorkWithPeer(myPeers, fp))
+			startWorkerThreadForPeer(fp);
+}
 void DownloadManager::startWorkerThreadForPeer(const std::shared_ptr<PeerInfo>& peer) {
     workers.emplace_back(DownloadWorker(database, file, peer, fileManager));
     worker_threads.emplace_back(workers.back().startWorker());

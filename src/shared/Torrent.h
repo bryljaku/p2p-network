@@ -33,6 +33,8 @@ public:
 
 	void setPath(std::string currentPath);
 	void saveToFile(std::string torrentFilename);
+
+	bool operator==(const Torrent& other);
 };
 
 
