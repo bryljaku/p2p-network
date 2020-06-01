@@ -15,6 +15,7 @@ class DownloadWorker {
     std::shared_ptr<File> file;
     FileManager& fileManager;
     std::shared_ptr<PeerInfo> peer;
+
     Torrent torrent;
     bool finished;
 public:

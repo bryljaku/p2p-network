@@ -3,6 +3,7 @@
 // created by Jakub
 #include <vector>
 #include "GeneralTypes.h"
+#include <atomic>
 enum SegmentState {
     FREE,
     DOWNLOADING,
@@ -11,16 +12,22 @@ enum SegmentState {
 
 class Segment {
     public:
-        Segment(Id id, uint8_t *data);
+        Segment(Id id, uint8_t *data, SegmentState segmentState = SegmentState::FREE);
         ~Segment() = default;
         Id getId() const;
         uint8_t *getDataPtr() const;
         void setSegmentState(SegmentState _state);
         SegmentState getSegmentState();
-    private:
-        SegmentState state;
-        Id id;
-        uint8_t *data;
+        bool tryToSetToDownload();
+    Segment(const Segment& pOther) {
+        this->id= pOther.getId();
+        this->data = pOther.getDataPtr();
+        this->state = pOther.state.load();
+    }
+private:
+    std::atomic<SegmentState> state {SegmentState::FREE};
+    Id id;
+    uint8_t *data;
 };
 
 
