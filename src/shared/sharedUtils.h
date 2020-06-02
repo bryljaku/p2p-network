@@ -57,4 +57,5 @@ void initLogger(std::string ident);
 std::string getConnectedIp(intptr_t socketFd);
 uint32_t getConnectedPort(intptr_t socketFd);
 int sendTcpMsg(intptr_t connFd, TcpMessage *msg);
+long getFilesize(const std::string& filename);
 #endif //P2P_NETWORK_LOGGER_H

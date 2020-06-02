@@ -2,7 +2,11 @@
 #include "Database.h"
 
 
-void Database::addFile(File file) {
+void Database::addFile(File &file) {
+	if(isFileInDatabase(file.getTorrent())) {
+		syslogger->info("Trying to add already existing torrent ", file.getId());
+		return;
+	}
     files.emplace_back(std::make_shared<File>(file));
     syslogger->info("Added file {} to database", file.getId());
 }
@@ -18,11 +22,11 @@ std::shared_ptr<File>& Database::getFile(Id id) {
     syslogger->warn("Couldn't find file with id {}", id);
 }
 
-bool Database::isFileInDatabase(Torrent &torrent) {
+bool Database::isFileInDatabase(Torrent &torrent) const {
     for(auto &f: files)
         if (f.get()->getTorrent().hashed == torrent.hashed)
             return true;
-    spdlog::warn("Couldn't find requested file");
+//    spdlog::warn("Couldn't find requested file");
     return false;
 }
 
@@ -56,6 +60,9 @@ int Database::loadFromFile(std::string filename) {
 }
 
 int Database::saveToFile(std::string filename) {
+	if(getFiles().size() == 0) {
+		return 0;
+	}
 	std::ofstream file(filename.c_str(), std::ios::out | std::ios::binary);
 	if(!file.is_open()) {
 		return 1;

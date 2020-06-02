@@ -3,13 +3,13 @@
 
 std::thread DownloadWorker::startWorker() {
     return std::thread([&] {
-        try {
+//        try {
             syslogger->info("new DownloadWorker initiated");
             work();
             syslogger->info("DownloadWorker finished");
-        } catch (std::exception &e) {
-            syslogger->error("Download Worker errored for torrent {}\n{}", torrent.hashed);
-        }
+//        } catch (std::exception &e) {
+//            syslogger->error("Download Worker errored for torrent {}\n{}", torrent.hashed);
+//        }
         
     });
 }
@@ -66,6 +66,7 @@ DownloadWorker::DownloadWorker(std::shared_ptr<Database> database1, std::shared_
         fileManager(fileManager1),
         file(std::move(file1)),
         peer(std::move(peer1)) {
+	torrent = file->getTorrent();
     finished = false;
     syslogger->info("DownloadW for file {} created", file->getId());
 }

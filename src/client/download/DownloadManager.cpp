@@ -3,13 +3,13 @@
 // created by Jakub
 std::thread DownloadManager::start_manager() {
     return std::thread([&] {
-        try {
+//        try {
             updatePeersAndStartWorkers();
             manageWorkers();
             joinWorkers();
-        } catch (std::exception &e) {
-            syslogger->error("Exception caught in DownloadManager for torrent {}\n{}", file->getTorrent().hashed, e.what());
-        }
+//        } catch (std::exception &e) {
+//            syslogger->error("Exception caught in DownloadManager for torrent {}\n{}", file->getTorrent().hashed, e.what());
+//        }
     });
 }
 
@@ -79,23 +79,31 @@ bool DownloadManager::checkIfFileContainsPeerWithGivenIpV6(IpV4Address address) 
             [&](auto& x) { return x->getIpV6Address() == address;}) == file->getPeers().end());
 }
 bool DownloadManager::checkIfWorkersWorkWithPeer(std::vector<std::shared_ptr<PeerInfo>> myPeers, std::shared_ptr<PeerInfo> peer) {
-    return !(std::find_if(
-            myPeers.begin(), myPeers.end(),
-            [&](auto& x) { return x->getIpV6Address() == peer->getIpV6Address() || x->getIpV4Address() == peer->getIpV4Address();}) == myPeers.end());
+    for(auto& p : myPeers) {
+    	if(p->getPort() == peer->getPort()) {
+    		if(peer->getIpV4Address()!="" && peer->getIpV4Address() == p->getIpV4Address()) {
+    			return true;
+    		}
+    		if(peer->getIpV6Address()!="" && peer->getIpV6Address() == p->getIpV6Address()) {
+    			return true;
+    		}
+    	}
+    }
+    return false;
 }
 
 void DownloadManager::addPeersToFile(const SeedlistResponse& response) {
     for (auto i: response.ipv6peers())
-        if (checkIfFileContainsPeerWithGivenIpV6(i.ip()))
+        if (!checkIfFileContainsPeerWithGivenIpV6(i.ip()))
             file->addPeer(PeerInfo(file->getPeers().size() + 1, "", i.ip(), i.port()));
     for (auto i: response.ipv6seeds())
-        if (checkIfFileContainsPeerWithGivenIpV6(i.ip()))
+        if (!checkIfFileContainsPeerWithGivenIpV6(i.ip()))
             file->addPeer(PeerInfo(file->getPeers().size() + 1, "", i.ip(), i.port()));
     for (auto i: response.ipv4seeds())
-        if (checkIfFileContainsPeerWithGivenIpV4(i.ip()))
+        if (!checkIfFileContainsPeerWithGivenIpV4(i.ip()))
             file->addPeer(PeerInfo(file->getPeers().size() + 1, i.ip(), "", i.port()));
     for (auto i: response.ipv4peers())
-        if (checkIfFileContainsPeerWithGivenIpV4(i.ip()))
+        if (!checkIfFileContainsPeerWithGivenIpV4(i.ip()))
             file->addPeer(PeerInfo(file->getPeers().size() + 1, i.ip(),"", i.port()));
 }
 

@@ -18,19 +18,37 @@
 #define CLIENT_DEFAULT_PORT 59096
 #define LISTENER_DEFAULT_TIMEOUT 5;
 #define CLIENT_SEED_TEST_ADDRESS "172.28.1.2"
+#define DEFAULT_DB_FILENAME "torrent.db"
 
 extern uint32_t GLOB_responder_port;
 
 void runMenu(int port, std::string &trackerIp, std::shared_ptr<Database> db);
 
-void * runResponderThread(void * arg) {
-	intptr_t connFd = (uintptr_t) arg;
+struct ResponderThreadArgs {
+	intptr_t connFd;
+	Database* db;
+	ResponderThreadArgs(intptr_t connFd, Database* db):connFd(connFd),db(db){};
+};
+
+struct ListenerArgs {
+	int port;
+	Database* db;
+	ListenerArgs(int port, Database* db):port(port),db(db){};
+};
+
+void * runResponderThread(void * args) {
+	auto* rta = (ResponderThreadArgs*) args;
 	ResponderThread res;
-	res.run(connFd);
+	res.run(rta->connFd, rta->db);
 }
 
-void connListen(int port) {
-	GLOB_responder_port = port;
+
+
+void * connListen(void * args) {
+	auto* la = (ListenerArgs*) args;
+	int port = la->port;
+	Database* db = la->db;
+	delete la;
 	std::string portS  = std::to_string(port);
 	int socketFd = guard(socket(AF_INET, SOCK_STREAM, 0), "Could not create TCP listening socket");
 
@@ -53,12 +71,19 @@ void connListen(int port) {
 		intptr_t conn_fd = guard(accept(socketFd, NULL, NULL), "Could not accept");
 //		setsockopt(conn_fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
 		pthread_t thread_id;
-		int ret = pthread_create(&thread_id, NULL, runResponderThread, (void*) conn_fd);
+		ResponderThreadArgs rta(conn_fd, db);
+		int ret = pthread_create(&thread_id, NULL, runResponderThread, (void*) &rta);
 		if (ret != 0) {
 			syslogger->error("Error from pthread: %d\n", ret); exit(1);
 		}
 		syslogger->debug("main: created thread to handle connection " + std::to_string(conn_fd));
 	}
+}
+
+void runListener(int port, Database* db) {
+	pthread_t thread_id;
+	ListenerArgs* la = new ListenerArgs(port, db);
+	pthread_create(&thread_id, NULL, connListen, (void*) la);
 }
 
 int main(int argc, char *argv[]) {
@@ -69,6 +94,9 @@ int main(int argc, char *argv[]) {
     std::string trackerIp;
 
 	auto database = std::make_shared<Database>();
+	if(database->loadFromFile(DEFAULT_DB_FILENAME) == 1) {
+		std::cout << "Missing or could not open the database file.\n";
+	}
 	int option;
 	while((option = getopt(argc, argv, ":p:t:")) != -1) {
     	switch(option) {
@@ -101,6 +129,8 @@ int main(int argc, char *argv[]) {
         syslogger->error("No tracker ip provided");
         return 1;
     }
+
+	GLOB_responder_port = clientPort;
 	runMenu(clientPort, trackerIp, database);
 
 	return 0;
@@ -108,12 +138,12 @@ int main(int argc, char *argv[]) {
 
 void runMenu(int port, std::string &trackerIp, std::shared_ptr<Database> db) {
 	bool end = false;
-
+	bool listenerRunning = false;
 	while (!end) {
 		printf("___________________________________ \n");
 		printf("___ Welcome to Concrete Torrent ___ \n\n");
-		printf("1. Add file to DB\n");						// add local file to DB so it can be further shared
-		printf("2. Create new local file\n");				// create local file out of torrentFile, obligatory before requesting download
+		printf("1. Create a torrent file and send it to tracker\n");						// add local file to DB so it can be further shared
+		printf("2. Allocate space for a torrent\n");				// create local file out of torrentFile, obligatory before requesting download
 		printf("3. Request download\n");					// start download manager to begin downloading segments of a file
 		printf("4. Listen on port\n");						// connListen on port given as -p argument
 		printf("5. QUIT\n");
@@ -125,6 +155,8 @@ void runMenu(int port, std::string &trackerIp, std::shared_ptr<Database> db) {
 			std::cin >> choice;
 			if (std::cin.fail()) {
 				fprintf(stderr, "\nWrong input! Choose option: ");
+				std::cin.clear();
+				std::cin.ignore(10000, '\n');
 				continue;
 			}
 			break;
@@ -138,8 +170,33 @@ void runMenu(int port, std::string &trackerIp, std::shared_ptr<Database> db) {
 				printf("Enter file name: ");
 				std::cin >> fileName;
 				if (!std::cin.fail()){
-					db->loadFromFile(fileName);
-					std::cout << "ADDED: " << fileName << "\n";
+					long potentialSize = getFilesize(fileName);
+					if(potentialSize == -1) {   // file can't be opened
+						std::cout << "File missing or cannot be opened.\n";
+						break;
+					}
+
+					std::cout << "Attempting to notify tracker about file '" << fileName << "'\n";
+					Torrent t(potentialSize, fileName);
+					SSocket sock(trackerIp, TRACKER_PORT);
+					if(sock.start() == OPEN) {
+						Hash newTorrentHash = sock.sendNewTorrentRequest(t);
+						if(newTorrentHash == 0) {
+							std::cout << "Communication error :/\n";
+							break;
+						}
+						t.hashed = newTorrentHash;
+					} else {
+						std::cout << "Problem connecting to the tracker!\n";
+						break;
+					}
+					t.saveToFile(t.fileName + ".torrent");
+					std::cout << "Saved as " + t.fileName + ".torrent\n";
+					File f(t, t.fileName);
+					f.markComplete();
+					db->addFile(f);
+					sock.sendImSeed(t);
+					std::cout << "Adding to tracker successful.\n";
 				} else {
 					fprintf(stderr, "Wrong file name\n");
 				}
@@ -153,9 +210,19 @@ void runMenu(int port, std::string &trackerIp, std::shared_ptr<Database> db) {
 				std::cin >> fileName;
 				if (!std::cin.fail()){
 					FileManager fm;
-
 					Torrent torrent(std::move(fileName));
-					fm.createLocalFile(torrent);
+					if(torrent.size == -1) {
+						std::cout << "File doesn't exist or can't be opened.";
+						break;
+					}
+					if(torrent.hashed == 0) {
+						std::cout << "Torrent file not complete (tracker-provided hash missing).";
+						break;
+					}
+					fm.createLocalFile(torrent, "");      // create an empty file on disk, same folder as client
+					torrent.setPath(torrent.fileName+".torrent");
+					File f(torrent, torrent.fileName);                     // create a File
+					db->addFile(f);
 
 					std::cout << "CREATED: " << fileName << "\n";
 				} else {
@@ -176,9 +243,10 @@ void runMenu(int port, std::string &trackerIp, std::shared_ptr<Database> db) {
 						IpAddress trackerIpAddress(trackerIp, TRACKER_PORT);
 						DownloadManager dm(db, db->getFile(requestedTorrent.hashed), fm, trackerIpAddress);
 						auto dmThread = dm.start_manager();
-						//dmThread.join();	// ???
-					std::cout << "REQUESTED: " << torrentFileName << "\n";
+						dmThread.join();	// ???
+						std::cout << "REQUESTED: " << torrentFileName << "\n";
 					} else {
+						std::cout << "Requested torrent file not found.";
 						break;
 					}
 				} else {
@@ -188,12 +256,16 @@ void runMenu(int port, std::string &trackerIp, std::shared_ptr<Database> db) {
 				break;
 			}
 			case 4: {
-				connListen(port);
+				if(!listenerRunning) {
+					listenerRunning = true;
+					runListener(port, db.get());
+				}
 				break;
 			}
 			case 5: {
 				end = true;
-				printf("\nGood Bye :)\n");
+				db->saveToFile(DEFAULT_DB_FILENAME);
+				std::cout << "\nGood Bye :)\n";
 				break;
 			}
 		}

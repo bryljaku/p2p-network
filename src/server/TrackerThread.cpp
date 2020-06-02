@@ -28,10 +28,14 @@ void TrackerThread::respond(intptr_t connFd, TcpMessage *msg) {
 
 		std::vector<ClientInfo> res = db->getClientsWith(msg->seedlistrequest().hashedtorrent());
 		for(auto c : res) {
+			if(c.getAddress().ip == getConnectedIp(connFd)) {   //TODO: dodac sprawdzanie czy port sie zgadza
+				continue;
+			}
 			if(c.getIsIpV4()) {
 				IpPort *ipport = t->add_ipv4peers();
 				ipport->set_ip(c.getAddress().ip);
 				ipport->set_port(c.getAddress().port);
+				syslogger->debug("\t{}:{}",c.getAddress().ip, c.getAddress().port);
 			} else {
 				IpPort *ipport = t->add_ipv6peers();
 				ipport->set_ip(c.getAddress().ip);
@@ -46,8 +50,6 @@ void TrackerThread::respond(intptr_t connFd, TcpMessage *msg) {
 		newTorrent.genDefaultHash();
 
 		db->addTorrent(newTorrent);
-		ClientInfo ci(true, IpAddress(getConnectedIp(connFd), getConnectedPort(connFd)));
-		db->addTorrentToClient(ci, newTorrent);
 
 		response.set_code(CS_NEW_RESPONSE);
 		auto t = new NewResponse;
@@ -56,7 +58,7 @@ void TrackerThread::respond(intptr_t connFd, TcpMessage *msg) {
 		response.set_allocated_newresponse(t);
 		sendTcpMsg(connFd, &response);
 	} else if (code == CS_IM_A_SEED) {
-		IpAddress ad(getConnectedIp(connFd), getConnectedPort(connFd));
+		IpAddress ad(getConnectedIp(connFd), msg->imaseed().receiverport());
 		handleSeedNotification(ad, msg->imaseed().hashedtorrent());
 	} else if (code == CS_CLIENT_UNAVAILABLE) {
 		Ips ips;

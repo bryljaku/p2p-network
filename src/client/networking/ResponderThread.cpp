@@ -5,9 +5,10 @@
 #define SOCKET_DEFAULT_TIMEOUT 5			//TODO: zwiekszyc potem
 #define CLIENT_MAX_MESSAGE_SIZE 128*1024	// in bytes
 
-void ResponderThread::run(intptr_t connFd) {
+void ResponderThread::run(intptr_t _connFd, Database* _db) {
+	this->connFd = _connFd;
+	this->db = _db;
 	std::string ipAddress = getConnectedIp(connFd);
-
 	syslogger->debug("thread: serving " + ipAddress);
 	std::string defaultTimeoutS = std::to_string(SOCKET_DEFAULT_TIMEOUT);
 
@@ -22,23 +23,17 @@ void ResponderThread::run(intptr_t connFd) {
 		TcpMessage message;
 		message.ParseFromArray(buf, sizeof(buf));
 		syslogger->debug("From: " + ipAddress + " Code: " + TcpCode_Name(message.code()));
-		respond(connFd, &message);
+		respond(&message);
 	}
 
 	guard(close(connFd),  "Could not close socket");
 	syslogger->debug("thread: finished serving " + std::to_string(connFd));
 }
 
-void ResponderThread::respond(intptr_t connFd, TcpMessage *msg) {
+void ResponderThread::respond(TcpMessage *msg) {
 	TcpCode code = msg->code();
 	TcpMessage response;
 	FileManager fm;
-
-	//TEST
-
-	Database testdb;
-	Torrent testTorrent(1337,10, "./path");
-	testdb.addFile(File(testTorrent, "./path"));
 
 	//END TEST
 	if(code == OK) {
@@ -48,10 +43,12 @@ void ResponderThread::respond(intptr_t connFd, TcpMessage *msg) {
 		response.set_code(CC_LIST_RESPONSE);
 		auto lr = new ListResponse;
 		int totalSegs = 0;
-		for(auto s : testdb.getFiles()) {
+		for(auto& s : db->getFiles()) {
 			if (msg->listrequest().hashedtorrent() == s->getTorrent().hashed) {
 				for(int i=0; i<s->getNumOfSegments(); i++) {
+					syslogger->info("segment nr{}");
 					if(s->getSegmentState(i) == SegmentState::COMPLETE) {
+						syslogger->info("GOT IT");
 						lr->set_fragments(totalSegs++, i);
 					}
 				}
@@ -65,14 +62,14 @@ void ResponderThread::respond(intptr_t connFd, TcpMessage *msg) {
 		response.set_code(CC_FRAGMENT_RESPONSE);
 		auto fr = new FragmentResponse;
 		fr->set_filecode(F_NO_FILE);
-		for(auto s : testdb.getFiles()) {
+		for(auto s : db->getFiles()) {
 			if(s->getTorrent().hashed == msg->fragmentrequest().hashedtorrent()) {
 				if(s->getSegmentState(msg->fragmentrequest().fragnum()) == SegmentState::COMPLETE) {
 					fr->set_filecode(F_FINE);
 					fr->set_fragnum(msg->fragmentrequest().fragnum());
 					fr->set_hashedtorrent(msg->mutable_fragmentrequest()->hashedtorrent());
-					fr->set_fragment((const char*)s->getSegment(msg->fragmentrequest().fragnum()).getDataPtr());
-//					fr->set_fragment((const char*) fm.getSegment(s->getTorrent().fileName, msg->fragmentrequest().fragnum()));
+//					fr->set_fragment((const char*)s->getSegment(msg->fragmentrequest().fragnum()).getDataPtr());
+					fr->set_fragment((const char*) fm.getSegment(s->getTorrent().fileName, msg->fragmentrequest().fragnum()));
 				}
 			}
 		}

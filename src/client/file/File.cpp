@@ -26,6 +26,12 @@ void File::setSegmentState(int segmentId, SegmentState newState) {
     syslogger->info("File {} set segment {} state to {}", getId(), segmentId, newState);
 }
 
+void File::markComplete() {
+	for (auto& s : segments) {
+		s.setSegmentState(COMPLETE);
+	}
+}
+
 SegmentState File::getSegmentState(Id segmentId) {
     std::lock_guard<std::mutex> lk{fileMutex};
     return segments[segmentId].getSegmentState();
@@ -45,7 +51,18 @@ bool File::isComplete() {
 }
 
 
-File::File(const File& other) {}
+File::File(const File& other) {
+	this->size = other.size;
+	this->torrent = other.torrent;
+	this->path = other.path;
+	this->peers = std::vector<std::shared_ptr<PeerInfo>>();
+	for(auto s : other.segments) {
+		this->segments.emplace_back(s);
+	}
+	numOfSegments = segments.size();
+	this->dataBegin = nullptr;
+	syslogger->info("Created file with id {}", getId());
+}
 File::File(const Torrent& torrent, std::string path) {
     this->size = torrent.size;
     this->torrent = torrent;
@@ -84,7 +101,7 @@ std::vector<std::shared_ptr<PeerInfo>> File::getPeers() {
     return peers;
 }
 
-Id File::getId() {
+Id File::getId() const {
     return torrent.hashed;
 }
 

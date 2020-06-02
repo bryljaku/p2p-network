@@ -52,7 +52,6 @@ SeedlistResponse SSocket::sendSeedlistRequest(uint64_t hashedTorrent) {
 	if(state == SENT) {
 		receive();
 		if(state == RECVD && lastMsg.code()==CS_SEEDLIST_RESPONSE) {
-			syslogger->info(lastMsg.seedlistresponse().ipv4peers().Get(0).ip());
 			return lastMsg.seedlistresponse();
 		}
 	}

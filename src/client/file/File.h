@@ -28,7 +28,7 @@ public:
     File(const Torrent& torrent, std::string path);
     bool isComplete();
     Segment getSegment(int id);
-    Id getId();
+    Id getId() const;
     Torrent& getTorrent();
     std::string getPath();
     std::vector<std::shared_ptr<PeerInfo>> getPeers();
@@ -40,12 +40,16 @@ public:
     void addPeer(PeerInfo peer);
 
     SegmentState getSegmentState(Id segmentId);
-    void setSegmentState(Id segmentId, SegmentState newState);
+    void setSegmentState(int segmentId, SegmentState newState);
 
     bool tryToSetStateSegmentStateToDownload(Id id);
+
+	void markComplete();
+
 private:
 
     void generateSegments();
+
 };
 
 
