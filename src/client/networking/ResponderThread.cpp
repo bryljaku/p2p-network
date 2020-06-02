@@ -46,10 +46,8 @@ void ResponderThread::respond(TcpMessage *msg) {
 		for(auto& s : db->getFiles()) {
 			if (msg->listrequest().hashedtorrent() == s->getTorrent().hashed) {
 				for(int i=0; i<s->getNumOfSegments(); i++) {
-					syslogger->info("segment nr{}");
 					if(s->getSegmentState(i) == SegmentState::COMPLETE) {
-						syslogger->info("GOT IT");
-						lr->set_fragments(totalSegs++, i);
+						lr->add_fragments(i);
 					}
 				}
 			}
