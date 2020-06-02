@@ -14,7 +14,6 @@
 #include <networking/CSocket.h>
 
 class DownloadWorker {
-    std::shared_ptr<Database> database;
     std::shared_ptr<File> file;
     FileManager& fileManager;
     std::shared_ptr<PeerInfo> peer;
@@ -22,7 +21,7 @@ class DownloadWorker {
     bool finished;
 public:
 
-    DownloadWorker(std::shared_ptr<Database> database1, std::shared_ptr<File> file1, std::shared_ptr<PeerInfo> peer1, FileManager& fileManager1);
+    DownloadWorker(std::shared_ptr<File> file1, std::shared_ptr<PeerInfo> peer1, FileManager& fileManager1);
     ~DownloadWorker();
     std::shared_ptr<PeerInfo> getPeer();
     std::thread startWorker();

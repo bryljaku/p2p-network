@@ -56,7 +56,7 @@ void DownloadManager::startWorkersForNewPeers()
 			startWorkerThreadForPeer(fp);
 }
 void DownloadManager::startWorkerThreadForPeer(const std::shared_ptr<PeerInfo>& peer) {
-    workers.emplace_back(DownloadWorker(database, file, peer, fileManager));
+    workers.emplace_back(DownloadWorker(file, peer, fileManager));
     worker_threads.emplace_back(workers.back().startWorker());
     syslogger->info("DownloadManager added new worker for file {} for new peer {}", file->getId(), peer->getId());
     

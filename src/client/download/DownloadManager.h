@@ -22,7 +22,7 @@ class DownloadManager {
 public:
 
     DownloadManager(std::shared_ptr<Database> database1, std::shared_ptr<File> file1, FileManager& fileManager1, IpAddress &trackerAddress)
-    :database(std::move(database1)), file(std::move(file1)), fileManager(fileManager1), trackerAddress(trackerAddress) {
+    : trackerAddress(trackerAddress), database(std::move(database1)), file(std::move(file1)),  fileManager(fileManager1) {
         syslogger->info("DownloadManager for file {} created", file->getId());
     }
     

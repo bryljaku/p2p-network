@@ -60,12 +60,13 @@ bool DownloadWorker::isDone() {
 
 DownloadWorker::~DownloadWorker() = default;
 
-DownloadWorker::DownloadWorker(std::shared_ptr<Database> database1, std::shared_ptr<File> file1,
+DownloadWorker::DownloadWorker(std::shared_ptr<File> file1,
                                std::shared_ptr<PeerInfo> peer1, FileManager &fileManager1) :
-        database(std::move(database1)),
-        fileManager(fileManager1),
         file(std::move(file1)),
-        peer(std::move(peer1)) {
+        fileManager(fileManager1),
+        peer(std::move(peer1)),
+        torrent(file1->getTorrent())
+         {
     finished = false;
     syslogger->info("DownloadW for file {} created", file->getId());
 }
