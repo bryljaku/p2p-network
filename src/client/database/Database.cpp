@@ -61,7 +61,6 @@ bool Database::isFileInDatabase(Torrent &torrent) {
             return true;
     spdlog::warn("Couldn't find requested file");
     return false;
-   // return nullptr; //todo jak to poprawic? pls help
 }
 
 int Database::loadFromFile(std::string filename) {
