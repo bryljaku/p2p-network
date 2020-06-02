@@ -34,7 +34,6 @@ void DownloadWorker::work() {
     ListResponse peerFragments = peerSocket.requestFragmentsList(torrent);
     for (auto fragmentId: peerFragments.fragments()) {
          if (file->tryToSetStateSegmentStateToDownload(fragmentId)) {
-             file->setSegmentState(fragmentId, DOWNLOADING);
              auto fragmentResponse = peerSocket.requestFragment(torrent, fragmentId);
              if (fragmentResponse.filecode() == F_ERROR) {
                  file->setSegmentState(fragmentId, FREE);
