@@ -55,6 +55,15 @@ std::shared_ptr<File>& Database::getFile(std::string path) {
    // return nullptr; //todo jak to poprawic? pls help
 }
 
+bool Database::isFileInDatabase(Torrent &torrent) {
+    for(auto &f: files)
+        if (f.get()->getTorrent().hashed == torrent.hashed)
+            return true;
+    spdlog::warn("Couldn't find requested file");
+    return false;
+   // return nullptr; //todo jak to poprawic? pls help
+}
+
 int Database::loadFromFile(std::string filename) {
 	struct stat statRes;
 	if(stat(filename.c_str(), &statRes) != 0) { // file can't be opened

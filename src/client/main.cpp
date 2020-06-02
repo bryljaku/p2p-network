@@ -61,35 +61,6 @@ void connListen(int port) {
 	}
 }
 
-void test() {
-	auto database = std::make_shared<Database>();
-	FileManager fileManager = FileManager(database);
-	Torrent testTorrent(1337,10, "./path");
-	File file  = File(testTorrent, "./path");
-	file.addPeer(PeerInfo(1, CLIENT_SEED_TEST_ADDRESS, "", CLIENT_DEFAULT_PORT));
-	database->addFile(file);
-	IpAddress trackerAddress(TRACKER_ADDRESS, TRACKER_PORT);
-	DownloadManager manager(database, database->getFile(1337), fileManager, trackerAddress);
-	auto mngThread = manager.start_manager();
-	mngThread.join();
-
-	SSocket testTrackerSocket(TRACKER_ADDRESS, TRACKER_PORT);
-	testTrackerSocket.start();
-	testTrackerSocket.sendOk();
-	testTrackerSocket.sendSeedlistRequest(1);
-	testTrackerSocket.sendNewTorrentRequest(testTorrent);
-}
-
-// 0 - ok, 1 - error opening file
-int addTorrentFile(std::shared_ptr<Database> db, std::string filename) {
-	Torrent nTor(std::move(filename));
-	if(nTor.size == -1) {
-		return 1;
-	}
-
-	return 0;
-}
-
 int main(int argc, char *argv[]) {
 	initLogger("p2p-client");
 	syslogger->info("p2p client starting");
@@ -98,12 +69,10 @@ int main(int argc, char *argv[]) {
 	std::string trackerIp = TRACKER_ADDRESS;
 	int trackerPort = TRACKER_PORT;
 
-	bool doTest = true;
-
 	auto database = std::make_shared<Database>();
     runMenu(trackerPort, trackerIp, database);
 	int option;
-	while((option = getopt(argc, argv, ":p:sa:t:a:")) != -1) {
+	while((option = getopt(argc, argv, ":p:t:")) != -1) {
     	switch(option) {
 			case 'p': {
 				int potentialPort = (int) strtol(optarg, nullptr, 10);
@@ -112,18 +81,6 @@ int main(int argc, char *argv[]) {
 					exit(1);
 				}
 				port = potentialPort;
-				break;
-			}
-			case 's':
-				doTest = false;
-				break;
-			case 'a': {
-				int result = addTorrentFile(database, optarg);
-				if (result == 0) {
-					std::cout << "Added torrent file successfully";
-				} else if (result == 1) {
-					std::cout << "Can't open such a file";
-				}
 				break;
 			}
 			case 't': {
@@ -143,11 +100,6 @@ int main(int argc, char *argv[]) {
     	printf("Given extra arguments: %s\n", argv[optind]);
     }
 
-	if(doTest) {
-		test();
-	}
-
-	//connListen(port);
 	runMenu(port, trackerIp, database);
 
 	return 0;
@@ -219,11 +171,15 @@ void runMenu(int port, std::string &trackerIp, std::shared_ptr<Database> db) {
 				std::cin >> torrentFileName;
 				Torrent requestedTorrent(torrentFileName);
 				if (!std::cin.fail()){
-					IpAddress trackerIpAddress(trackerIp, TRACKER_PORT);
-					DownloadManager dm(db, db->getFile(requestedTorrent.hashed), fm, trackerIpAddress);
-					auto dmThread = dm.start_manager();
-					//dmThread.join();	// ???
+					if(db->isFileInDatabase(requestedTorrent)) {
+						IpAddress trackerIpAddress(trackerIp, TRACKER_PORT);
+						DownloadManager dm(db, db->getFile(requestedTorrent.hashed), fm, trackerIpAddress);
+						auto dmThread = dm.start_manager();
+						//dmThread.join();	// ???
 					std::cout << "REQUESTED: " << torrentFileName << "\n";
+					} else {
+						break;
+					}
 				} else {
 					fprintf(stderr, "Wrong file name\n");
 				}

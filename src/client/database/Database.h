@@ -17,6 +17,8 @@ public:
     std::shared_ptr<File> &getFile(Id id);
     std::shared_ptr<File> &getFile(std::string path);
 
+    bool isFileInDatabase(Torrent &torrent); //checks file existence using its torrent's hashed value
+
     int loadFromFile(std::string filename);
     int saveToFile(std::string filename);
 };
