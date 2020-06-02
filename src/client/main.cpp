@@ -65,22 +65,20 @@ int main(int argc, char *argv[]) {
 	initLogger("p2p-client");
 	syslogger->info("p2p client starting");
 
-	int port = CLIENT_DEFAULT_PORT;
-	std::string trackerIp = TRACKER_ADDRESS;
-	int trackerPort = TRACKER_PORT;
+	int clientPort = CLIENT_DEFAULT_PORT;
+    std::string trackerIp;
 
 	auto database = std::make_shared<Database>();
-    runMenu(trackerPort, trackerIp, database);
 	int option;
 	while((option = getopt(argc, argv, ":p:t:")) != -1) {
     	switch(option) {
 			case 'p': {
 				int potentialPort = (int) strtol(optarg, nullptr, 10);
 				if(potentialPort<1024 || potentialPort>65535) {
-					perror("Invalid port number");
+					perror("Invalid clientPort number");
 					exit(1);
 				}
-				port = potentialPort;
+                clientPort = potentialPort;
 				break;
 			}
 			case 't': {
@@ -99,8 +97,11 @@ int main(int argc, char *argv[]) {
 	for(; optind < argc; optind++){ //when some extra arguments are passed
     	printf("Given extra arguments: %s\n", argv[optind]);
     }
-
-	runMenu(port, trackerIp, database);
+    if (trackerIp.empty()) {
+        syslogger->error("No tracker ip provided");
+        return 1;
+    }
+	runMenu(clientPort, trackerIp, database);
 
 	return 0;
 }
