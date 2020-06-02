@@ -1,10 +1,6 @@
-#include <sharedUtils.h>
 //created by Jakub
-#include <utility>
 #include "DownloadWorker.h"
-#include "networking/CSocket.h"
 
-#define CLIENT_DEFAULT_PORT 59095
 std::thread DownloadWorker::startWorker() {
     return std::thread([&] {
         try {
@@ -63,5 +59,14 @@ bool DownloadWorker::isDone() {
     return finished;
 }
 
-DownloadWorker::~DownloadWorker() {
+DownloadWorker::~DownloadWorker() = default;
+
+DownloadWorker::DownloadWorker(std::shared_ptr<Database> database1, std::shared_ptr<File> file1,
+                               std::shared_ptr<PeerInfo> peer1, FileManager &fileManager1) :
+        database(std::move(database1)),
+        fileManager(fileManager1),
+        file(std::move(file1)),
+        peer(std::move(peer1)) {
+    finished = false;
+    syslogger->info("DownloadW for file {} created", file->getId());
 }

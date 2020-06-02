@@ -9,6 +9,8 @@
 #include "PeerInfo.h"
 #include <mutex>
 #include <Torrent.h>
+#include <utility>
+#include <sharedUtils.h>
 //created by Jakub
 
 class File {
@@ -17,12 +19,9 @@ class File {
     int numOfSegments = -1;
     int size = -1;
     std::string path = "";
-    std::vector<bool> completeSegmentsBool;
     std::vector<std::shared_ptr<PeerInfo>> peers;
     uint8_t *dataBegin;
-    uint8_t *dataEnd;
-//    mutable std::mutex segmentDownloadStateCheckMutex;
-
+    bool isCompleted;
 public:
     File(const Torrent& torrent, std::string path);
     bool isComplete();

@@ -2,13 +2,14 @@
 #include "DownloadManager.h"
 // created by Jakub
 std::thread DownloadManager::start_manager() {
-    return std::thread([&] {try {
-        updatePeersAndStartWorkers();
-        manageWorkers();
-        joinWorkers();
-    } catch (std::exception &e) {
-        syslogger->error("Exception caught in DownloadManager for torrent {}\n{}", file->getTorrent().hashed, e.what());
-    }
+    return std::thread([&] {
+        try {
+            updatePeersAndStartWorkers();
+            manageWorkers();
+            joinWorkers();
+        } catch (std::exception &e) {
+            syslogger->error("Exception caught in DownloadManager for torrent {}\n{}", file->getTorrent().hashed, e.what());
+        }
     });
 }
 
@@ -17,8 +18,6 @@ void DownloadManager::joinWorkers() {
         w.join();
     syslogger->info("DownloadManager joined workers for file {}", file->getId());
 }
-
-
 
 void DownloadManager::manageWorkers() {
     while(checkIfWorkersWork()) {
@@ -68,6 +67,7 @@ bool DownloadManager::checkIfWorkersWork() {
             return true;
     return false;
 }
+
 bool DownloadManager::checkIfFileContainsPeerWithGivenIpV4(IpV4Address address) {
     return !(std::find_if(
             file->getPeers().begin(), file->getPeers().end(),

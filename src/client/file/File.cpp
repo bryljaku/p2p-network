@@ -1,13 +1,17 @@
 //created by Jakub
 #include "File.h"
-#include <utility>
-#include <sharedUtils.h>
 
 bool File::isComplete() {
-    for (int i = 0; i < segments.size();i++)
-        if (COMPLETE != segments[i].getSegmentState())
-            return false;
-    return true;
+    if (!isCompleted) {
+        auto maybeCompleted = true;
+        for (int i = 0; i < segments.size(); i++)
+            if (COMPLETE != segments[i].getSegmentState()) {
+                maybeCompleted = false;
+                break;
+            }
+        isCompleted = maybeCompleted;
+    }
+    return isCompleted;
 }
 
 Segment File::getSegment(int id) {
@@ -31,9 +35,7 @@ File::File(const Torrent& torrent, std::string path) {
     peers = std::vector<std::shared_ptr<PeerInfo>>();
     generateSegments();
     numOfSegments = segments.size();
-    completeSegmentsBool = std::vector<bool>(this->numOfSegments, false);
-    this->dataBegin = nullptr; // todo - it should be some dataptr to file on disk
-//    this->dataEnd = this->dataBegin + size;
+    this->dataBegin = nullptr;
     syslogger->info("Created file with id {}", getId());
 }
 
@@ -44,12 +46,7 @@ void File::generateSegments() {
         this->numOfSegments = size / DEFAULTSEGMENTSIZE + 1;
     
     for (int i = 0; i < numOfSegments; i++)
-        this->segments.emplace_back(Segment(i, this->dataBegin + DEFAULTSEGMENTSIZE * i));
-//    std::vector<std::mutex *> mut(numOfSegments);
-//    my_mutexes = mut;
-//    for (int i = 0; i < numOfSegments; i++)
-//        my_mutexes[i] = new std::mutex();
-    
+        this->segments.emplace_back(Segment(i, this->dataBegin + DEFAULTSEGMENTSIZE * i, SegmentState::FREE));
     syslogger->info("Generated {} segments for file with id {}", numOfSegments, getId());
 }
 
