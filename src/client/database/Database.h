@@ -1,10 +1,10 @@
 #ifndef P2P_NETWORK_DATABASE_H
 #define P2P_NETWORK_DATABASE_H
-//created by Jakub
-
 #include <vector>
 #include "../file/File.h"
-
+#include <algorithm>
+#include <fstream>
+#include <sharedUtils.h>
 #include <memory>
 
 class Database {
@@ -12,10 +12,7 @@ class Database {
 public:
     std::vector<std::shared_ptr<File>> &getFiles();
     void addFile(File file);
-    void removeFile(Id id);
-    void removeFile(std::string path);
     std::shared_ptr<File> &getFile(Id id);
-    std::shared_ptr<File> &getFile(std::string path);
 
     int loadFromFile(std::string filename);
     int saveToFile(std::string filename);
