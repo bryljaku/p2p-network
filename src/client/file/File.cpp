@@ -4,8 +4,8 @@
 #include <sharedUtils.h>
 
 bool File::isComplete() {
-    for (auto s: segments)
-        if (COMPLETE != s.getSegmentState())
+    for (int i = 0; i < segments.size();i++)
+        if (COMPLETE != segments[i].getSegmentState())
             return false;
     return true;
 }
@@ -78,7 +78,12 @@ void File::addPeer(PeerInfo peer) {
     syslogger->info("File {} added peer {}", getId(), peer.getId());
 }
 
-//todo add concurrency
+
+
+bool File::tryToSetStateSegmentStateToDownload(Id id) {
+    return segments[id].tryToSetToDownload();
+}
+
 void File::setSegmentState(int segmentId, SegmentState newState) {
     segments[segmentId].setSegmentState(newState);
     syslogger->info("File {} set segment {} state to {}", getId(), segmentId, newState);

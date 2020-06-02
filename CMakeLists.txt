@@ -8,6 +8,7 @@ file(GLOB SHARED_SOURCES "./src/shared/*.cpp")
 file(GLOB PROTO_FILES "./src/shared/protoc/*.proto")
 
 #### LIBS
+
 # protobuf
 find_package( Protobuf REQUIRED)
 if ( Protobuf_FOUND )

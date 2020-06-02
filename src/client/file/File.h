@@ -41,9 +41,10 @@ public:
     SegmentState getSegmentState(Id segmentId);
     void setSegmentState(Id segmentId, SegmentState newState);
 
+    bool tryToSetStateSegmentStateToDownload(Id id);
 private:
-    void generateSegments();
 
+    void generateSegments();
 };
 
 
