@@ -20,6 +20,8 @@ class DownloadManager {
     FileManager& fileManager;
     std::vector<DownloadWorker> workers;
     std::vector<std::thread> worker_threads;
+
+
 public:
 
     DownloadManager(std::shared_ptr<Database> database1, std::shared_ptr<File> file1, FileManager& fileManager1, IpAddress &trackerAddress)

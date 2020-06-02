@@ -1,10 +1,5 @@
 #include "Segment.h"
 //created by Jakub
-Segment::Segment(Id id, uint8_t *data) {
-    this->id = id;
-    this->data = data;
-    this->state = FREE;
-}
 
 uint8_t *Segment::getDataPtr() const {
     return data;
@@ -19,4 +14,18 @@ Id Segment::getId() const {
 
 SegmentState Segment::getSegmentState() {
     return state;
+}
+
+Segment::Segment(Id id, uint8_t *data,SegmentState segmentState) {
+    this->id = id;
+    this->data = data;
+    this->state = segmentState;
+}
+
+bool Segment::tryToSetToDownload() {
+    if (state == FREE) {
+        state = DOWNLOADING;
+        return true;
+    }
+    return false;
 }

@@ -32,6 +32,7 @@ void DownloadManager::manageWorkers() {
     }
 }
 void DownloadManager::updatePeersAndStartWorkers() {
+
     syslogger->info("DownloadManager updating peers for torrent {}", file->getTorrent().hashed);
 	SSocket sSocket(trackerAddress.ip, trackerAddress.port);	//TODO: tu lepiej w wątkach, bo może chwile wisieć na połączeniu
 	auto state = sSocket.start();
