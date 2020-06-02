@@ -21,8 +21,7 @@
 
 // extern uint32_t GLOB_responder_port;
 
-// void runMenu();
-// void createFile(Filename fileName);
+// void runMenu(int port, std::string &trackerIp, std::shared_ptr<Database> db);
 
 // void * runResponderThread(void * arg) {
 // 	intptr_t connFd = (uintptr_t) arg;
@@ -82,7 +81,7 @@
 // }
 
 // // 0 - ok, 1 - error opening file
-// int addTorrentFile(Database db, std::string filename) {
+// int addTorrentFile(std::shared_ptr<Database> db, std::string filename) {
 // 	Torrent nTor(std::move(filename));
 // 	if(nTor.size == -1) {
 // 		return 1;
@@ -97,11 +96,11 @@
 
 // 	int port = CLIENT_DEFAULT_PORT;
 // 	std::string trackerIp = TRACKER_ADDRESS;
-// 	//int trackerPort = TRACKER_PORT;
+// 	int trackerPort = TRACKER_PORT;
 
 // 	bool doTest = true;
 
-// 	Database db;
+// 	auto database = std::make_shared<Database>();
 
 // 	int option;
 // 	while((option = getopt(argc, argv, ":p:sa:t:a:")) != -1) {
@@ -118,15 +117,15 @@
 // 			case 's':
 // 				doTest = false;
 // 				break;
-// 			// case 'a': {
-// 			// 	int result = addTorrentFile(db, optarg);
-// 			// 	if (result == 0) {
-// 			// 		std::cout << "Added torrent file successfully";
-// 			// 	} else if (result == 1) {
-// 			// 		std::cout << "Can't open such a file";
-// 			// 	}
-// 			// 	break;
-// 			// }
+// 			case 'a': {
+// 				int result = addTorrentFile(database, optarg);
+// 				if (result == 0) {
+// 					std::cout << "Added torrent file successfully";
+// 				} else if (result == 1) {
+// 					std::cout << "Can't open such a file";
+// 				}
+// 				break;
+// 			}
 // 			case 't': {
 // 				trackerIp = optarg;
 // 				break;
@@ -145,25 +144,26 @@
 //     }
 
 // 	if(doTest) {
-// 		//test();
+// 		test();
 // 	}
 
-// 	runMenu();
 // 	//connListen(port);
+// 	runMenu(port, trackerIp, database);
 
 // 	return 0;
 // }
 
-// void runMenu() {
+// void runMenu(int port, std::string &trackerIp, std::shared_ptr<Database> db) {
 // 	bool end = false;
 
 // 	while (!end) {
 // 		printf("___________________________________ \n");
 // 		printf("___ Welcome to Concrete Torrent ___ \n\n");
-// 		printf("1. Add torrent file\n");
-// 		printf("2. Create new local file\n");
-// 		printf("3. Request download\n");
-// 		printf("4. QUIT\n");
+// 		printf("1. Add file to DB\n");						// add local file to DB so it can be further shared
+// 		printf("2. Create new local file\n");				// create local file out of torrentFile, obligatory before requesting download
+// 		printf("3. Request download\n");					// start download manager to begin downloading segments of a file
+// 		printf("4. Listen on port\n");						// connListen on port given as -p argument
+// 		printf("5. QUIT\n");
 // 		printf("Choose option: ");
 
 // 		int choice;
@@ -180,18 +180,12 @@
 
 // 		switch (choice) {
 // 			case 1: {
-// 				Database db; // dummy
 // 				Filename fileName;
 
-// 				printf("Enter file name to add: ");
+// 				printf("Enter file name: ");
 // 				std::cin >> fileName;
 // 				if (!std::cin.fail()){
-// 					// int result = addTorrentFile(db, fileName); // db?
-// 					// if (result == 0) {
-// 					// 	printf("Added torrent file successfully\n");
-// 					// } else if (result == 1) {
-// 					// 	printf("Can't open such a file\n");
-// 					// }
+// 					db->loadFromFile(fileName);
 // 					std::cout << "ADDED: " << fileName << "\n";
 // 				} else {
 // 					fprintf(stderr, "Wrong file name\n");
@@ -202,10 +196,14 @@
 // 			case 2: {
 // 				Filename fileName;
 
-// 				printf("Enter file name to create: ");
+// 				printf("Enter torrent file name: ");
 // 				std::cin >> fileName;
 // 				if (!std::cin.fail()){
-// 					//createFile(fileName);	
+// 					FileManager fm;
+
+// 					Torrent torrent(std::move(fileName));
+// 					fm.createLocalFile(torrent);
+
 // 					std::cout << "CREATED: " << fileName << "\n";
 // 				} else {
 // 					fprintf(stderr, "Wrong file name\n");
@@ -215,11 +213,16 @@
 // 			}
 // 			case 3: {
 // 				Filename torrentFileName;
+// 				FileManager fm;
 
-// 				printf("Enter torrent file name: ");
+// 				printf("Enter requested torrent file name: ");
 // 				std::cin >> torrentFileName;
+// 				Torrent requestedTorrent(torrentFileName);
 // 				if (!std::cin.fail()){
-// 					//request that file TODO
+// 					IpAddress trackerIpAddress(trackerIp, TRACKER_PORT);
+// 					DownloadManager dm(db, db->getFile(requestedTorrent.hashed), fm, trackerIpAddress);
+// 					auto dmThread = dm.start_manager();
+// 					//dmThread.join();	// ???
 // 					std::cout << "REQUESTED: " << torrentFileName << "\n";
 // 				} else {
 // 					fprintf(stderr, "Wrong file name\n");
@@ -228,17 +231,14 @@
 // 				break;
 // 			}
 // 			case 4: {
+// 				connListen(port);
+// 				break;
+// 			}
+// 			case 5: {
 // 				end = true;
 // 				printf("\nGood Bye :)\n");
 // 				break;
 // 			}
 // 		}
 // 	}
-// }
-
-// void createFile(Filename fileName) {
-// 	FileManager fm;
-
-// 	Torrent torrent(std::move(fileName));
-// 	fm.createLocalFile(torrent); // should be integrated with DB somehow?
 // }
