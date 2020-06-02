@@ -1,7 +1,5 @@
 #include "Database.h"
 // created by Jakub
-#include <utility>
-
 
 void Database::addOrUpdateClient(ClientInfo clientInfo) {
 	mutex.lock();
@@ -38,9 +36,9 @@ void Database::deleteClient(const ClientInfo& client) {
     clients.erase(new_end, clients.end());
     
     if (clients.size() != oldSize)
-        spdlog::info("Deleted client with address {}", client.getAddress().ip, client.getAddress().port);
+        syslogger->info("Deleted client with address {}", client.getAddress().ip, client.getAddress().port);
     else
-        spdlog::info("Client with address {}:{} not found. Not deleted", client.getAddress().ip, client.getAddress().port);
+        syslogger->info("Client with address {}:{} not found. Not deleted", client.getAddress().ip, client.getAddress().port);
     mutex.unlock();
 }
 
