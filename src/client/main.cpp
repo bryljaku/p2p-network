@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
 	bool doTest = true;
 
 	auto database = std::make_shared<Database>();
-
+    runMenu(trackerPort, trackerIp, database);
 	int option;
 	while((option = getopt(argc, argv, ":p:sa:t:a:")) != -1) {
     	switch(option) {

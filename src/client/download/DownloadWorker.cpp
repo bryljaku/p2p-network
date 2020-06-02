@@ -37,19 +37,19 @@ void DownloadWorker::work() {
     }
     ListResponse peerFragments = peerSocket.requestFragmentsList(torrent);
     for (auto fragmentId: peerFragments.fragments()) {
-        // if (file->tryToSetStateSegmentStateToDownload(fragmentId)) {
-        //     file->setSegmentState(fragmentId, DOWNLOADING);
-        //     auto fragmentResponse = peerSocket.requestFragment(torrent, fragmentId);
-        //     if (fragmentResponse.filecode() == F_ERROR) {
-        //         file->setSegmentState(fragmentId, FREE);
-        //         syslogger->warn("DownloadWorker Peer didn't respond with segment bytes");
-        //     } else {
-        //         const auto &fragmentBytes = fragmentResponse.fragment();
-        //         fileManager.storeSegmentToFile(file->getTorrent().fileName, file->getPath(), fragmentId, fragmentBytes); //todo - waiting for fileManager
-        //         file->setSegmentState(fragmentId, COMPLETE);
-        //         syslogger->info("DownloadWorker correctly downloaded segment {} for torrent {}", fragmentId, torrent.hashed);
-        //     }
-        // }
+         if (file->tryToSetStateSegmentStateToDownload(fragmentId)) {
+             file->setSegmentState(fragmentId, DOWNLOADING);
+             auto fragmentResponse = peerSocket.requestFragment(torrent, fragmentId);
+             if (fragmentResponse.filecode() == F_ERROR) {
+                 file->setSegmentState(fragmentId, FREE);
+                 syslogger->warn("DownloadWorker Peer didn't respond with segment bytes");
+             } else {
+                 const auto &fragmentBytes = fragmentResponse.fragment();
+                 fileManager.storeSegmentToFile(file->getTorrent().fileName, file->getPath(), fragmentId, fragmentBytes); //todo - waiting for fileManager
+                 file->setSegmentState(fragmentId, COMPLETE);
+                 syslogger->info("DownloadWorker correctly downloaded segment {} for torrent {}", fragmentId, torrent.hashed);
+             }
+         }
     }
     syslogger->info("downloaded all fragments from {}", peerIp);
     finished = true;
