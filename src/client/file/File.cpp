@@ -9,11 +9,7 @@ void File::addPeer(PeerInfo peer) {
 
 bool File::tryToSetStateSegmentStateToDownload(Id id) {
     std::unique_lock<std::mutex> lk{fileMutex};
-    if (completed_segments[id])
-        return false;
-
-    if (!busy_segments[id]) {
-        busy_segments[id] = true;
+    if (segments[id].getSegmentState() == FREE) {
         segments[id].setSegmentState(DOWNLOADING);
         return true;
     }
@@ -23,13 +19,7 @@ bool File::tryToSetStateSegmentStateToDownload(Id id) {
 void File::setSegmentState(int segmentId, SegmentState newState) {
     std::unique_lock<std::mutex> lk{fileMutex};
     segments[segmentId].setSegmentState(newState);
-    if (newState == FREE) {
-        completed_segments[segmentId] = false;
-        busy_segments[segmentId] = false;
-    } else if (newState == COMPLETE) {
-      completed_segments[segmentId] = false;
-      busy_segments[segmentId] = false;
-    } else {
+    if (newState ==DOWNLOADING) {
         syslogger->error("File {} invalid use of setSegmentState. ",getId());
         throw std::logic_error("");
     }
@@ -63,8 +53,6 @@ File::File(const Torrent& torrent, std::string path) {
     peers = std::vector<std::shared_ptr<PeerInfo>>();
     generateSegments();
     numOfSegments = segments.size();
-    this->busy_segments = boost::dynamic_bitset(segments.size());
-    this->completed_segments = boost::dynamic_bitset(segments.size());
     this->dataBegin = nullptr;
     syslogger->info("Created file with id {}", getId());
 }

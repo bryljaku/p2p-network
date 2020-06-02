@@ -11,7 +11,6 @@
 #include <Torrent.h>
 #include <utility>
 #include <sharedUtils.h>
-#include <boost/dynamic_bitset.hpp>
 //created by Jakub
 
 class File {
@@ -24,10 +23,6 @@ class File {
     uint8_t *dataBegin{};
     bool isCompleted{};
     std::mutex fileMutex;
-    boost::dynamic_bitset<>
-            busy_segments;
-    boost::dynamic_bitset<>
-            completed_segments;
 public:
     File(const File& file);
     File(const Torrent& torrent, std::string path);
