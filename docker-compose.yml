@@ -29,8 +29,7 @@ services:
     command: ./client -s
     image: bittorrent-client
     networks:
-      bittorrent-network:
-          ipv4_address: 172.28.1.2
+      - bittorrent-network
 
 #  client:
 #    stdin_open: true

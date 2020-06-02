@@ -1,0 +1,1 @@
+docker run -it --network bittorrent-network bittorrent-client sh
