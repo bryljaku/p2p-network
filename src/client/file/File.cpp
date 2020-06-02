@@ -2,13 +2,13 @@
 #include "File.h"
 
 void File::addPeer(PeerInfo peer) {
-    std::unique_lock<std::mutex> lk{fileMutex};
+    std::lock_guard<std::mutex> lk{fileMutex};
     peers.emplace_back(std::make_shared<PeerInfo>(peer));
     syslogger->info("File {} added peer {}", getId(), peer.getId());
 }
 
 bool File::tryToSetStateSegmentStateToDownload(Id id) {
-    std::unique_lock<std::mutex> lk{fileMutex};
+    std::lock_guard<std::mutex> lk{fileMutex};
     if (segments[id].getSegmentState() == FREE) {
         segments[id].setSegmentState(DOWNLOADING);
         return true;
@@ -17,7 +17,7 @@ bool File::tryToSetStateSegmentStateToDownload(Id id) {
 }
 
 void File::setSegmentState(int segmentId, SegmentState newState) {
-    std::unique_lock<std::mutex> lk{fileMutex};
+    std::lock_guard<std::mutex> lk{fileMutex};
     segments[segmentId].setSegmentState(newState);
     if (newState ==DOWNLOADING) {
         syslogger->error("File {} invalid use of setSegmentState. ",getId());
@@ -27,11 +27,11 @@ void File::setSegmentState(int segmentId, SegmentState newState) {
 }
 
 SegmentState File::getSegmentState(Id segmentId) {
-    std::unique_lock<std::mutex> lk{fileMutex};
+    std::lock_guard<std::mutex> lk{fileMutex};
     return segments[segmentId].getSegmentState();
 }
 bool File::isComplete() {
-    std::unique_lock<std::mutex> lk{fileMutex};
+    std::lock_guard<std::mutex> lk{fileMutex};
     if (!isCompleted) {
         auto maybeCompleted = true;
         for (int i = 0; i < segments.size(); i++)
@@ -57,7 +57,7 @@ File::File(const Torrent& torrent, std::string path) {
     syslogger->info("Created file with id {}", getId());
 }
 Segment File::getSegment(int id) {
-    std::unique_lock<std::mutex> lk{fileMutex};
+    std::lock_guard<std::mutex> lk{fileMutex};
     return segments[id];
 }
 
