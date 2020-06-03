@@ -32,8 +32,8 @@ public:
     Torrent& getTorrent();
     std::string getPath();
     std::vector<std::shared_ptr<PeerInfo>> getPeers();
-    int getNumOfSegments();
-    int getSize();
+    int getNumOfSegments() const;
+    int getSize() const;
 
     uint8_t* getDataBegin();
 

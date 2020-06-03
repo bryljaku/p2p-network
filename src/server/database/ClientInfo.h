@@ -27,20 +27,6 @@ public:
 		this->torrents = std::move(torrents);
 	}
 
-	void setTorrents(std::vector<Torrent> newTorrents) {
-		this->torrents = std::move(newTorrents);
-	}
-
-	std::vector<Torrent> getTorrents() {
-		return this->torrents;
-	}
-
-	bool hasTorrent(Torrent torrent) const {
-		for(auto& i: torrents)
-			if(i.hashed == torrent.hashed)
-				return true;
-		return false;
-	}
 
 	bool hasTorrent(Hash hash) const {
 		for(auto& i: torrents)
@@ -59,10 +45,7 @@ public:
 		for (auto& f: torrents)
 			if (f.hashed == torrent.hashed) return;
 		torrents.emplace_back(torrent);
-	}
-	void deleteFileToShare(const Torrent& filename) {
-		torrents.erase(std::remove(torrents.begin(), torrents.end(), filename), torrents.end());
-	}
+
 
 	bool operator==(const ClientInfo& other) const {
 		return this->getAddress()==other.getAddress() && this->getIsIpV4()==other.getIsIpV4();

@@ -3,13 +3,13 @@
 
 std::thread DownloadWorker::startWorker() {
     return std::thread([&] {
-//        try {
+        try {
             syslogger->info("new DownloadWorker initiated");
             work();
             syslogger->info("DownloadWorker finished");
-//        } catch (std::exception &e) {
-//            syslogger->error("Download Worker errored for torrent {}\n{}", torrent.hashed);
-//        }
+        } catch (std::exception &e) {
+            syslogger->error("Download Worker errored for torrent {}\n{}", torrent.hashed);
+        }
         
     });
 }
@@ -39,14 +39,14 @@ void DownloadWorker::work() {
                  file->setSegmentState(fragmentId, FREE);
                  syslogger->warn("DownloadWorker Peer didn't respond with segment bytes");
              } else {
-                 const auto &fragmentBytes = "asdgasgasdgasdgasdg";//fragmentResponse.fragment();
-                 fileManager.storeSegmentToFile(file->getTorrent().fileName, file->getPath(), fragmentId, fragmentBytes); //todo - waiting for fileManager
+                 const auto &fragmentBytes = fragmentResponse.fragment();
+                 fileManager.storeSegmentToFile(file->getTorrent().fileName, file->getPath(), fragmentId, fragmentBytes);
                  file->setSegmentState(fragmentId, COMPLETE);
                  syslogger->info("DownloadWorker correctly downloaded segment {} for torrent {}", fragmentId, torrent.hashed);
              }
          }
     }
-    syslogger->info("downloaded all fragments from {}", peerIp);
+    syslogger->info("Downloaded all fragments from {}", peerIp);
     finished = true;
 }
 
@@ -54,7 +54,7 @@ std::shared_ptr<PeerInfo> DownloadWorker::getPeer() {
     return peer;
 }
 
-bool DownloadWorker::isDone() {
+bool DownloadWorker::isDone() const {
     return finished;
 }
 
@@ -63,10 +63,10 @@ DownloadWorker::~DownloadWorker() = default;
 DownloadWorker::DownloadWorker(std::shared_ptr<Database> database1, std::shared_ptr<File> file1,
                                std::shared_ptr<PeerInfo> peer1, FileManager &fileManager1) :
         database(std::move(database1)),
-        fileManager(fileManager1),
         file(std::move(file1)),
+        fileManager(fileManager1),
         peer(std::move(peer1)) {
-	torrent = file->getTorrent();
+    torrent = file->getTorrent();
     finished = false;
     syslogger->info("DownloadW for file {} created", file->getId());
 }

@@ -20,14 +20,13 @@ class DownloadWorker {
     std::shared_ptr<PeerInfo> peer;
     Torrent torrent;
     bool finished;
+    void work();
 public:
-
     DownloadWorker(std::shared_ptr<Database> database1, std::shared_ptr<File> file1, std::shared_ptr<PeerInfo> peer1, FileManager& fileManager1);
     ~DownloadWorker();
     std::shared_ptr<PeerInfo> getPeer();
     std::thread startWorker();
-    bool isDone();
-    void work();
+    bool isDone() const;
 };
 
 

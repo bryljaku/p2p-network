@@ -8,7 +8,6 @@
 #include "networking/ResponderThread.h"
 #include "download/DownloadManager.h"
 #include "networking/CSocket.h"
-#include "networking/RequestHandler.h"
 #include "networking/SSocket.h"
 #include "file/PeerInfo.h"
 #include "database/Database.h"
@@ -119,6 +118,8 @@ int main(int argc, char *argv[]) {
             case '?': //used for some unknown options
                 printf("unknown option: %c\n", optopt);
                 break;
+            default:
+                break;
         }
     }
 
@@ -164,7 +165,6 @@ void runMenu(int port, std::string &trackerIp, std::shared_ptr<Database> db) {
             listenerRunning = true;
             runListener(port, db.get());
         }
-        sleep(0.1);
         switch (choice) {
             case 1: {
                 Filename fileName;

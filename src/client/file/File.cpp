@@ -82,7 +82,7 @@ std::shared_ptr<Segment> File::getSegment(int id) {
     return segments[id];
 }
 
-int File::getSize() {
+int File::getSize() const {
     return size;
 }
 
@@ -97,7 +97,7 @@ void File::generateSegments() {
         this->numOfSegments = size / DEFAULTSEGMENTSIZE + 1;
 
     for (int i = 0; i < numOfSegments; i++)
-        this->segments.emplace_back(std::make_shared<Segment>(i, this->dataBegin + DEFAULTSEGMENTSIZE * i, SegmentState::FREE));
+        this->segments.emplace_back(std::make_shared<Segment>(i,  SegmentState::FREE));
     syslogger->info("Generated {} segments for file with id {}", numOfSegments, getId());
 }
 
@@ -109,14 +109,10 @@ Id File::getId() const {
     return torrent.hashed;
 }
 
-int File::getNumOfSegments() {
+int File::getNumOfSegments() const {
     return numOfSegments;
 }
 
 std::string File::getPath() {
     return path;
-}
-
-uint8_t* File::getDataBegin() {
-    return dataBegin;
 }

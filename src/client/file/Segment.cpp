@@ -1,9 +1,6 @@
 #include "Segment.h"
 //created by Jakub
 
-uint8_t *Segment::getDataPtr() const {
-    return data;
-}
 void Segment::setSegmentState(SegmentState _state){
     this->state = _state;
 }
@@ -16,9 +13,8 @@ SegmentState Segment::getSegmentState() {
     return state;
 }
 
-Segment::Segment(Id id, uint8_t *data,SegmentState segmentState) {
+Segment::Segment(Id id, SegmentState segmentState) {
     this->id = id;
-    this->data = data;
     this->state = segmentState;
 }
 

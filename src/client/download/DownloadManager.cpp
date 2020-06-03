@@ -3,13 +3,14 @@
 // created by Jakub
 std::thread DownloadManager::start_manager() {
     return std::thread([&] {
-//        try {
-            updatePeersAndStartWorkers();
+        try {
+            updatePeers();
+            startWorkersForNewPeers();
             manageWorkers();
             joinWorkers();
-//        } catch (std::exception &e) {
-//            syslogger->error("Exception caught in DownloadManager for torrent {}\n{}", file->getTorrent().hashed, e.what());
-//        }
+        } catch (std::exception &e) {
+            syslogger->error("Exception caught in DownloadManager for torrent {}\n{}", file->getTorrent().hashed, e.what());
+        }
     });
 }
 
@@ -25,25 +26,25 @@ void DownloadManager::manageWorkers() {
             syslogger->info("Download completed for file {}", file->getPath());
             return;
         }
-		updatePeersAndStartWorkers();
+
+        updatePeers();
+        startWorkersForNewPeers();
         syslogger->info("Manager check");
         sleep(30);
     }
 }
-void DownloadManager::updatePeersAndStartWorkers() {
-
+void DownloadManager::updatePeers() {
     syslogger->info("DownloadManager updating peers for torrent {}", file->getTorrent().hashed);
-	SSocket sSocket(trackerAddress.ip, trackerAddress.port);	//TODO: tu lepiej w wątkach, bo może chwile wisieć na połączeniu
-	auto state = sSocket.start();
-	if (state != OPEN) {
-		syslogger->warn("DownloadManager problem occured while connecting to {}:{}", trackerAddress.ip, trackerAddress.port);
-		return;
-	}
+    SSocket sSocket(trackerAddress.ip, trackerAddress.port);
+    auto state = sSocket.start();
+    if (state != OPEN) {
+        syslogger->warn("DownloadManager problem occured while connecting to {}:{}", trackerAddress.ip, trackerAddress.port);
+        return;
+    }
     auto listResponse = sSocket.sendSeedlistRequest(file->getTorrent().hashed);
     addPeersToFile(listResponse);
 
     syslogger->info("successfully updated peers for file {}", file->getTorrent().fileName);
-	startWorkersForNewPeers();
 }
 void DownloadManager::startWorkersForNewPeers()
 {
@@ -78,7 +79,7 @@ bool DownloadManager::checkIfFileContainsPeerWithGivenIpV6(IpV4Address address) 
             file->getPeers().begin(), file->getPeers().end(),
             [&](auto& x) { return x->getIpV6Address() == address;}) == file->getPeers().end());
 }
-bool DownloadManager::checkIfWorkersWorkWithPeer(std::vector<std::shared_ptr<PeerInfo>> myPeers, std::shared_ptr<PeerInfo> peer) {
+bool DownloadManager::checkIfWorkersWorkWithPeer(const std::vector<std::shared_ptr<PeerInfo>>& myPeers, std::shared_ptr<PeerInfo> peer) {
     for(auto& p : myPeers) {
     	if(p->getPort() == peer->getPort()) {
     		if(peer->getIpV4Address()!="" && peer->getIpV4Address() == p->getIpV4Address()) {
@@ -92,7 +93,7 @@ bool DownloadManager::checkIfWorkersWorkWithPeer(std::vector<std::shared_ptr<Pee
     return false;
 }
 
-void DownloadManager::addPeersToFile(const SeedlistResponse& response) {
+void DownloadManager::addPeersToFile(const SeedlistResponse& response) { //todo trzeba to opakowac w lambdy
     for (auto i: response.ipv6peers())
         if (!checkIfFileContainsPeerWithGivenIpV6(i.ip()))
             file->addPeer(PeerInfo(file->getPeers().size() + 1, "", i.ip(), i.port()));

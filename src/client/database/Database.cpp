@@ -26,12 +26,12 @@ bool Database::isFileInDatabase(Torrent &torrent) const {
     for(auto &f: files)
         if (f.get()->getTorrent().hashed == torrent.hashed)
             return true;
-//    spdlog::warn("Couldn't find requested file");
+    syslogger->warn("Couldn't find requested file");
     return false;
 }
 
-int Database::loadFromFile(std::string filename) {
-    struct stat statRes;
+int Database::loadFromFile(const std::string& filename) {
+    struct stat statRes{};
     if(stat(filename.c_str(), &statRes) != 0) { // file can't be opened
         return 1;
     }
@@ -43,7 +43,7 @@ int Database::loadFromFile(std::string filename) {
     if (file.is_open())
     {
         while ( getline (file,line) ) {
-            auto torrentPath = line;
+            const auto& torrentPath = line;
             if(stat(torrentPath.c_str(), &statRes) != 0) {
                 syslogger->info("Missing torrent file '{}'!", torrentPath);
                 continue;
@@ -58,8 +58,8 @@ int Database::loadFromFile(std::string filename) {
     return 0;
 }
 
-int Database::saveToFile(std::string filename) {
-    if(getFiles().size() == 0) {
+int Database::saveToFile(const std::string& filename) {
+    if(getFiles().empty()) {
         return 0;
     }
     std::ofstream file(filename.c_str(), std::ios::out | std::ios::binary);

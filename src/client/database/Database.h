@@ -13,11 +13,9 @@ public:
     std::vector<std::shared_ptr<File>> &getFiles();
     void addFile(File &file);
     std::shared_ptr<File> &getFile(Id id);
-
-    bool isFileInDatabase(Torrent &torrent) const; //checks file existence using its torrent's hashed value
-
-    int loadFromFile(std::string filename);
-    int saveToFile(std::string filename);
+    bool isFileInDatabase(Torrent &torrent) const;
+    int loadFromFile(const std::string& filename);
+    int saveToFile(const std::string& filename);
 };
 
 
