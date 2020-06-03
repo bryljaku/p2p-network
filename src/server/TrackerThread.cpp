@@ -4,6 +4,7 @@ void TrackerThread::handleSeedNotification(IpAddress address, uint64_t hashedTor
 	ClientInfo ci(true, address);
 	for(auto t : *db->torrentVector())  {
 		if(t.hashed == hashedTorrent) {
+		    spdlog::info("added {} torrent to address {}", t.hashed, ci.getAddress().ip);
 			db->addTorrentToClient(ci, t);
 			return;
 		}
@@ -27,6 +28,12 @@ void TrackerThread::respond(intptr_t connFd, TcpMessage *msg) {
 		auto t = new SeedlistResponse;			// delete(t) not needed, Protobuf does it when freeing response
 
 		std::vector<ClientInfo> res = db->getClientsWith(msg->seedlistrequest().hashedtorrent());
+		std::string listtt;
+		for (auto r: res)
+		    listtt += " " + r.getAddress().ip;
+		std::cout << "seedlistrequest for torrent "<< msg->seedlistrequest().hashedtorrent() <<"\n";
+		spdlog::info("clients with {} torrent: {}", listtt, "?");
+
 		for(auto c : res) {
 			if(c.getAddress().ip == getConnectedIp(connFd)) {   //TODO: dodac sprawdzanie czy port sie zgadza
 				continue;
@@ -50,7 +57,7 @@ void TrackerThread::respond(intptr_t connFd, TcpMessage *msg) {
 		newTorrent.genDefaultHash();
 
 		db->addTorrent(newTorrent);
-
+        spdlog::info("added new torrent {}", newTorrent.hashed);
 		response.set_code(CS_NEW_RESPONSE);
 		auto t = new NewResponse;
 		t->set_newhash(newTorrent.hashed);
@@ -76,7 +83,7 @@ void * TrackerThread::run(intptr_t connFd, Database* db) {
 	this->db = db;
 	std::string ipAddress = getConnectedIp(connFd);
 
-	syslogger->debug("thread: serving " + ipAddress);
+	spdlog::debug("thread: serving " + ipAddress);
 	std::string defaultTimeoutS = "TODO: display timeout seconds"; // TODO
 
 	char buf[CLIENT_MAX_MESSAGE_SIZE];

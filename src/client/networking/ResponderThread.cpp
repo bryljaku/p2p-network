@@ -48,11 +48,13 @@ void ResponderThread::respond(TcpMessage *msg) {
 				for(int i=0; i<s->getNumOfSegments(); i++) {
 					if(s->getSegmentState(i) == SegmentState::COMPLETE) {
 						lr->add_fragments(i);
+						totalSegs+=1;
 					}
 				}
 			}
 		}
-		lr->set_filecode(F_FRAG_COMPLETE);
+        syslogger->info("list response: total segments{}", totalSegs);
+        lr->set_filecode(F_FRAG_COMPLETE);
 		lr->set_hashedtorrent(msg->listrequest().hashedtorrent());
 		response.set_allocated_listresponse(lr);
 		sendTcpMsg(connFd, &response);
@@ -66,7 +68,6 @@ void ResponderThread::respond(TcpMessage *msg) {
 					fr->set_filecode(F_FINE);
 					fr->set_fragnum(msg->fragmentrequest().fragnum());
 					fr->set_hashedtorrent(msg->mutable_fragmentrequest()->hashedtorrent());
-//					fr->set_fragment((const char*)s->getSegment(msg->fragmentrequest().fragnum()).getDataPtr());
 					fr->set_fragment((const char*) fm.getSegment(s->getTorrent().fileName, msg->fragmentrequest().fragnum()));
 				}
 			}
