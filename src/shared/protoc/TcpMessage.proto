@@ -29,7 +29,7 @@ enum FileCode {
 }
 
 message TorrentMessage {
-    uint64 hashed = 1;
+    uint32 hashed = 1;
     uint32 size = 2;
     string fileName = 3;
 }
@@ -53,7 +53,7 @@ message TcpMessage {
 }
 
 message SeedlistRequest {
-    uint64 hashedTorrent = 1;
+    uint32 hashedTorrent = 1;
 }
 
 message IpPort {
@@ -62,7 +62,7 @@ message IpPort {
 }
 
 message SeedlistResponse {
-	uint64 hashedTorrent = 1;
+	uint32 hashedTorrent = 1;
     repeated IpPort ipV4Seeds = 2;
     repeated IpPort ipV4Peers = 3;
     repeated IpPort ipV6Seeds = 4;
@@ -75,7 +75,7 @@ message ClientUnavailable {				// wysylane co jakis czas do trackerow, jak zbier
 }
 
 message ImASeed {			// powiadamiamy trackera, ze mamy juz caly plik pobrany
-    uint64 hashedTorrent = 1;
+    uint32 hashedTorrent = 1;
     uint32 receiverPort = 2;
 }
 
@@ -86,28 +86,28 @@ message NewRequest {		// chcemy dodac nowy torrent
 
 message NewResponse {		// wygenerowany nowy hash torrenta
     FileCode fileCode = 1;
-    uint64 newHash = 2;
+    uint32 newHash = 2;
 }
 
 // CLIENT to CLIENT communication below
 
 message ListRequest {		// pytamy o posiadane fragmenty
-    uint64 hashedTorrent = 1;
+    uint32 hashedTorrent = 1;
 }
 
 message ListResponse {		// odsylamy listę posiadanych frag.
-	uint64 hashedTorrent = 1;
+	uint32 hashedTorrent = 1;
     FileCode fileCode = 2;
     repeated uint32 fragments = 3;
 }
 
 message FragmentRequest {	// wysylamy zapytanie o jeden fragment
-    uint64 hashedTorrent = 1;
+    uint32 hashedTorrent = 1;
     uint32 fragNum = 2;
 }
 
 message FragmentResponse {	// odpowiadamy jednym fragmentem
-	uint64 hashedTorrent = 1;
+	uint32 hashedTorrent = 1;
     uint32 fragNum = 2;
     FileCode fileCode = 3;
     bytes fragment = 4;	// tutaj bajty fragmentu
