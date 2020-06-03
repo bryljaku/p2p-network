@@ -224,9 +224,9 @@ void runMenu(int port, std::string &trackerIp, std::shared_ptr<Database> db) {
                     }
                     fm.createLocalFile(torrent, "");      // create an empty file on disk, same folder as client
                     torrent.setPath(torrent.fileName+".torrent");
-                    File f(torrent, torrent.fileName);                     // create a File
-                    f.markComplete();
+                    File f(torrent, torrent.fileName);
                     db->addFile(f);
+                    db->getFile(torrent.hashed)->markComplete(); // to nie chce działac :o
 
                     std::cout << "CREATED: " << fileName << "\n";
                 } else {

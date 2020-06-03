@@ -9,8 +9,8 @@ void File::addPeer(PeerInfo peer) {
 
 bool File::tryToSetStateSegmentStateToDownload(Id id) {
     std::lock_guard<std::mutex> lk{fileMutex};
-    if (segments[id].getSegmentState() == FREE) {
-        segments[id].setSegmentState(DOWNLOADING);
+    if (segments[id]->getSegmentState() == FREE) {
+        segments[id]->setSegmentState(DOWNLOADING);
         return true;
     }
     return false;
@@ -18,7 +18,7 @@ bool File::tryToSetStateSegmentStateToDownload(Id id) {
 
 void File::setSegmentState(int segmentId, SegmentState newState) {
     std::lock_guard<std::mutex> lk{fileMutex};
-    segments[segmentId].setSegmentState(newState);
+    segments[segmentId]->setSegmentState(newState);
     if (newState ==DOWNLOADING) {
         syslogger->error("File {} invalid use of setSegmentState. ",getId());
         throw std::logic_error("");
@@ -28,24 +28,24 @@ void File::setSegmentState(int segmentId, SegmentState newState) {
 
 void File::markComplete() {
 	for (auto& s : segments) {
-		s.setSegmentState(COMPLETE);
+		s->setSegmentState(COMPLETE);
 	}
 }
 
 SegmentState File::getSegmentState(Id segmentId) {
     std::lock_guard<std::mutex> lk{fileMutex};
-    return segments[segmentId].getSegmentState();
+    return segments[segmentId]->getSegmentState();
 }
 bool File::isComplete() {
     std::lock_guard<std::mutex> lk{fileMutex};
     if (!isCompleted) {
         auto maybeCompleted = true;
-        for (int i = 0; i < segments.size(); i++)
-            if (COMPLETE != segments[i].getSegmentState()) {
+        for (auto i: segments)
+            if (COMPLETE != i->getSegmentState()) {
                 maybeCompleted = false;
                 break;
             }
-        isCompleted = maybeCompleted;
+        isCompleted = maybeCompleted;1
     }
     return isCompleted;
 }
@@ -73,7 +73,7 @@ File::File(const Torrent& torrent, std::string path) {
     this->dataBegin = nullptr;
     syslogger->info("Created file with id {}", getId());
 }
-Segment File::getSegment(int id) {
+std::shared_ptr<Segment> File::getSegment(int id) {
     std::lock_guard<std::mutex> lk{fileMutex};
     return segments[id];
 }
@@ -93,7 +93,7 @@ void File::generateSegments() {
         this->numOfSegments = size / DEFAULTSEGMENTSIZE + 1;
 
     for (int i = 0; i < numOfSegments; i++)
-        this->segments.emplace_back(Segment(i, this->dataBegin + DEFAULTSEGMENTSIZE * i, SegmentState::FREE));
+        this->segments.emplace_back(std::make_shared<Segment>(i, this->dataBegin + DEFAULTSEGMENTSIZE * i, SegmentState::FREE));
     syslogger->info("Generated {} segments for file with id {}", numOfSegments, getId());
 }
 

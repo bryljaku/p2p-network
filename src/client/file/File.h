@@ -15,7 +15,7 @@
 
 class File {
 	Torrent torrent;
-    std::vector<Segment> segments;
+    std::vector<std::shared_ptr<Segment>> segments;
     int numOfSegments = -1;
     int size = -1;
     std::string path = "";
@@ -27,7 +27,7 @@ public:
     File(const File& file);
     File(const Torrent& torrent, std::string path);
     bool isComplete();
-    Segment getSegment(int id);
+    std::shared_ptr<Segment> getSegment(int id);
     Id getId() const;
     Torrent& getTorrent();
     std::string getPath();
