@@ -46,6 +46,7 @@ bool File::isComplete() {
                 break;
             }
         isCompleted = maybeCompleted;
+        torrent.isSeed = maybeCompleted;
     }
     return isCompleted;
 }
@@ -66,11 +67,14 @@ File::File(const File& other) {
 File::File(const Torrent& torrent, std::string path) {
     this->size = torrent.size;
     this->torrent = torrent;
+
     this->path = std::move(path);
     peers = std::vector<std::shared_ptr<PeerInfo>>();
     generateSegments();
     numOfSegments = segments.size();
     this->dataBegin = nullptr;
+    if (torrent.isSeed)
+        markComplete();
     syslogger->info("Created file with id {}", getId());
 }
 std::shared_ptr<Segment> File::getSegment(int id) {

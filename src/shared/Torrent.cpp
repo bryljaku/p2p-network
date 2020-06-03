@@ -59,6 +59,10 @@ Torrent::Torrent(std::string fn) : Torrent() {
         std::string read_size = line;
         getline(file, line);
         auto read_filename = line;
+        getline(file, line);
+        auto isSeeder = line;
+        if (isSeeder == "1")
+            isSeed = true;
         hashed = std::atol(read_hashed.c_str());
         size = std::atoi(read_size.c_str());
         fileName = read_filename;
@@ -75,6 +79,7 @@ void Torrent::saveToFile(std::string torrentFilename) {
     file << hashed << '\n';
     file << size << '\n';
     file << fileName << '\n';
+    file << isSeed << '\n';
     setPath(fileName);
     file.close();
 }

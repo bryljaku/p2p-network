@@ -188,6 +188,7 @@ void runMenu(int port, std::string &trackerIp, std::shared_ptr<Database> db) {
                             break;
                         }
                         t.hashed = newTorrentHash;
+                        t.isSeed = true;
                     } else {
                         std::cout << "Problem connecting to the tracker!\n";
                         break;
