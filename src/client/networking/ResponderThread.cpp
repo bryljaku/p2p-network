@@ -44,6 +44,7 @@ void ResponderThread::respond(TcpMessage *msg) {
 		auto lr = new ListResponse;
 		int totalSegs = 0;
 		for(auto& s : db->getFiles()) {
+		    syslogger->info("{} {} {}", s->getTorrent().hashed, msg->listrequest().hashedtorrent(), s->getNumOfSegments());
 			if (msg->listrequest().hashedtorrent() == s->getTorrent().hashed) {
 				for(int i=0; i<s->getNumOfSegments(); i++) {
 					if(s->getSegmentState(i) == SegmentState::COMPLETE) {
@@ -54,6 +55,7 @@ void ResponderThread::respond(TcpMessage *msg) {
 			}
 		}
         syslogger->info("list response: total segments{}", totalSegs);
+		syslogger->info("hashed {}", msg->listrequest().hashedtorrent());
         lr->set_filecode(F_FRAG_COMPLETE);
 		lr->set_hashedtorrent(msg->listrequest().hashedtorrent());
 		response.set_allocated_listresponse(lr);
@@ -63,6 +65,7 @@ void ResponderThread::respond(TcpMessage *msg) {
 		auto fr = new FragmentResponse;
 		fr->set_filecode(F_NO_FILE);
 		for(auto s : db->getFiles()) {
+		    syslogger->info("{} {}", s->getTorrent().fileName, s->getTorrent().hashed);
 			if(s->getTorrent().hashed == msg->fragmentrequest().hashedtorrent()) {
 				if(s->getSegmentState(msg->fragmentrequest().fragnum()) == SegmentState::COMPLETE) {
 					fr->set_filecode(F_FINE);

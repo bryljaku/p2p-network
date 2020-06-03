@@ -225,6 +225,7 @@ void runMenu(int port, std::string &trackerIp, std::shared_ptr<Database> db) {
                     fm.createLocalFile(torrent, "");      // create an empty file on disk, same folder as client
                     torrent.setPath(torrent.fileName+".torrent");
                     File f(torrent, torrent.fileName);                     // create a File
+                    f.markComplete();
                     db->addFile(f);
 
                     std::cout << "CREATED: " << fileName << "\n";
