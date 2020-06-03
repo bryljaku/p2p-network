@@ -3,7 +3,7 @@
 // created by Jakub
 #include <string>
 
-#define SOCKET_DEFAULT_TIMEOUT 5	// in seconds TODO: zmienic na wyzszy timeout, bo tak to wywala klientow zaraz
+#define SOCKET_DEFAULT_TIMEOUT 500	// in seconds TODO: zmienic na wyzszy timeout, bo tak to wywala klientow zaraz
 #define SERVER_DEFAULT_PORT 59095
 #define CLIENT_DEFAULT_PORT 59096
 #define DEFAULTSEGMENTSIZE 8000

@@ -45,7 +45,7 @@ bool File::isComplete() {
                 maybeCompleted = false;
                 break;
             }
-        isCompleted = maybeCompleted;1
+        isCompleted = maybeCompleted;
     }
     return isCompleted;
 }

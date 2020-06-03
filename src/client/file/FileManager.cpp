@@ -108,9 +108,9 @@ char* FileManager::getSegment(const Filename fileName, Id segmentId, const std::
 		syslogger->error("File Manager couldn't get requested segment - size too big, segment size = {}", DEFAULTSEGMENTSIZE);
 		return nullptr;
 	}
-
 	readLockMutex.lock();
-	OpenedFile* of;
+    readUnlock(fileName);
+    OpenedFile* of;
 	for (OpenedFile *f : readLockedFiles) {
 		if (f->fileName == fileName) {
 			of = f;
@@ -137,7 +137,7 @@ char* FileManager::getSegment(const Filename fileName, Id segmentId, const std::
 	}
 
 	of->stream.read(reinterpret_cast<char *>(buffer), segmentSize);
-
+    readLock(fileName);
 	if (!of->stream || (of->stream.eof() && !of->stream.fail())) {
 		syslogger->error("File Manager couldn't read from file '{}'", fileName);
 		return nullptr;
