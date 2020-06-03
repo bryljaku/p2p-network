@@ -227,7 +227,7 @@ void runMenu(int port, std::string &trackerIp, std::shared_ptr<Database> db) {
                     torrent.setPath(torrent.fileName+".torrent");
                     File f(torrent, torrent.fileName);
                     db->addFile(f);
-                    db->getFile(torrent.hashed)->markComplete(); // to nie chce działac :o
+                    db->getFile(torrent.hashed);
 
                     std::cout << "CREATED: " << fileName << "\n";
                 } else {

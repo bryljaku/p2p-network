@@ -35,7 +35,7 @@ void DownloadWorker::work() {
     for (auto fragmentId: peerFragments.fragments()) {
          if (file->tryToSetStateSegmentStateToDownload(fragmentId)) {
              auto fragmentResponse = peerSocket.requestFragment(torrent, fragmentId);
-             if (fragmentResponse.filecode() == F_ERROR) {
+             if (fragmentResponse.filecode() != F_FINE) {
                  file->setSegmentState(fragmentId, FREE);
                  syslogger->warn("DownloadWorker Peer didn't respond with segment bytes");
              } else {
